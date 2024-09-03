@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -11,6 +12,7 @@ class Person
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[UniqueConstraint(name: "email", columns: ["email"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 35)]
