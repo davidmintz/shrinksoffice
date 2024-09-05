@@ -35,9 +35,8 @@ final class PersonFactory extends PersistentProxyObjectFactory
         $fee = self::faker()->boolean(60) ? 25000 :
             self::faker()->randomElement([20000, 15000, 17500]);
         $phone = self::faker()->phoneNumber();
-        $stripped = preg_replace('/\D/','',$phone);
-        $stripped = preg_replace('/^1/','',$stripped);
-        $phone = $stripped;
+        $phone =  substr(preg_replace('/\D/','',$phone), -10);
+
         return [
             'active' => self::faker()->boolean(80),
             'address1' => self::faker()->streetAddress(),
