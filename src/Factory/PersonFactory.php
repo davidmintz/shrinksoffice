@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\Person;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Faker\Provider\en_US\Address;
 
 /**
  * @extends PersistentProxyObjectFactory<Person>
@@ -18,7 +19,11 @@ final class PersonFactory extends PersistentProxyObjectFactory
     public function __construct()
     {
         parent::__construct();
+
+
     }
+
+
 
     public static function class(): string
     {
@@ -36,11 +41,14 @@ final class PersonFactory extends PersistentProxyObjectFactory
             self::faker()->randomElement([20000, 15000, 17500]);
         $phone = self::faker()->phoneNumber();
         $phone =  substr(preg_replace('/\D/','',$phone), -10);
+        $first = self::faker()->firstName();
+        $last = self::faker()->lastName();
+        $alias = substr($first,0,1) . substr($last,0,1);
 
         return [
             'active' => self::faker()->boolean(80),
-            'address1' => self::faker()->streetAddress(),
-            'address2' => self::faker()->passthrough(''),
+            'address' => self::faker()->streetAddress(),
+            'secondary_address' => Address::secondaryAddress(),  //self::faker()->secondaryAddress() ,
             'email' => self::faker()->email(),
             'fee' => $fee,
             'firstname' => self::faker()->firstName(),
@@ -51,6 +59,7 @@ final class PersonFactory extends PersistentProxyObjectFactory
             'postal_code' => self::faker()->postcode(),
             'state' => 'NJ',
             'notes' => self::faker()->boolean(20) ? self::faker()->sentence() : '',
+            'alias' => $alias,
         ];
     }
 
