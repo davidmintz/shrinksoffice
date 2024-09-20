@@ -1,37 +1,55 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Entity;
 
 use App\Repository\PersonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
+#[UniqueConstraint(name: "unique_email", columns: ["email"])]
 class Person
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[UniqueConstraint(name: "email", columns: ["email"])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 35)]
+    #[ORM\Column(length: 50)]
     private ?string $lastname = null;
 
-    #[ORM\Column(length: 35)]
+    #[ORM\Column(length: 50)]
     private ?string $firstname = null;
 
-    #[ORM\Column(length: 25)]
-    private ?string $middlename = null;
+    #[ORM\Column(length: 30, options: ["default" => ''])]
+    private ?string $middlename = '';
 
-    #[ORM\Column]
-    private ?bool $active = null;
+    #[ORM\Column(length: 10)]
+    private ?string $alias = null;
 
-    #[ORM\Column(length: 35)]
-    private ?string $address1 = null;
+    #[ORM\Column(length: 60)]
+    private ?string $email = null;
 
-    #[ORM\Column(length: 35)]
-    private ?string $address2 = null;
+    #[ORM\Column(type: Types::SMALLINT, options: ["unsigned" => true])]
+    private ?int $fee = null;
+
+    #[ORM\Column(length: 400)]
+    private ?string $notes = null;
+
+    #[ORM\Column(length: 12)]
+    private ?string $phone = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $secondary_address = null;
+
+    #[ORM\Column(length: 40)]
+    private ?string $city = null;
 
     #[ORM\Column(length: 2)]
     private ?string $state = null;
@@ -39,23 +57,11 @@ class Person
     #[ORM\Column(length: 10)]
     private ?string $postal_code = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $email = null;
-
-    #[ORM\Column(length: 10)]
-    private ?string $phone = null;
-
     #[ORM\Column]
-    private ?int $fee = null;
+    private ?bool $active = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $payer = null;
-
-    #[ORM\Column(length: 25)]
-    private ?string $city = null;
-
-    #[ORM\Column(length: 400)]
-    private ?string $notes = null;
 
     public function getId(): ?int
     {
@@ -98,38 +104,99 @@ class Person
         return $this;
     }
 
-    public function isActive(): ?bool
+    public function getAlias(): ?string
     {
-        return $this->active;
+        return $this->alias;
     }
 
-    public function setActive(bool $active): static
+    public function setAlias(string $alias): static
     {
-        $this->active = $active;
+        $this->alias = $alias;
 
         return $this;
     }
 
-    public function getAddress1(): ?string
+    public function getEmail(): ?string
     {
-        return $this->address1;
+        return $this->email;
     }
 
-    public function setAddress1(string $address1): static
+    public function setEmail(string $email): static
     {
-        $this->address1 = $address1;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getAddress2(): ?string
+
+    public function getFee(): ?int
     {
-        return $this->address2;
+        return $this->fee;
     }
 
-    public function setAddress2(string $address2): static
+    public function setFee(int $fee): static
     {
-        $this->address2 = $address2;
+        $this->fee = $fee;
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(string $notes): static
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(string $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getSecondaryAddress(): ?string
+    {
+        return $this->secondary_address;
+    }
+
+    public function setSecondaryAddress(string $secondary_address): static
+    {
+        $this->secondary_address = $secondary_address;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(string $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }
@@ -158,38 +225,14 @@ class Person
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function isActive(): ?bool
     {
-        return $this->email;
+        return $this->active;
     }
 
-    public function setEmail(string $email): static
+    public function setActive(bool $active): static
     {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(string $phone): static
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function getFee(): ?int
-    {
-        return $this->fee;
-    }
-
-    public function setFee(int $fee): static
-    {
-        $this->fee = $fee;
+        $this->active = $active;
 
         return $this;
     }
@@ -202,30 +245,6 @@ class Person
     public function setPayer(?self $payer): static
     {
         $this->payer = $payer;
-
-        return $this;
-    }
-
-    public function getCity(): ?string
-    {
-        return $this->city;
-    }
-
-    public function setCity(string $city): static
-    {
-        $this->city = $city;
-
-        return $this;
-    }
-
-    public function getNotes(): ?string
-    {
-        return $this->notes;
-    }
-
-    public function setNotes(string $notes): static
-    {
-        $this->notes = $notes;
 
         return $this;
     }
