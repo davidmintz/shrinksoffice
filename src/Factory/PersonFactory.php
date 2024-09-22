@@ -5,6 +5,7 @@ namespace App\Factory;
 use App\Entity\Person;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Faker\Provider\en_US\Address;
+use App\Entity\PersonType;
 
 /**
  * @extends PersistentProxyObjectFactory<Person>
@@ -60,7 +61,24 @@ final class PersonFactory extends PersistentProxyObjectFactory
             'state' => 'NJ',
             'notes' => self::faker()->boolean(20) ? self::faker()->sentence() : '',
             'alias' => $alias,
+            'type' => self::faker()->boolean(92) ? PersonType::PATIENT: PersonType::PAYER,
+
         ];
+    }
+
+    public function inactive() : self
+    {
+        return $this->with(['active' => false]);
+    }
+
+    public function active() : self
+    {
+        return $this->with(['active' => true]);
+    }
+
+    public function payer() : self
+    {
+        return $this->with(['type' => 'payer']);
     }
 
     /**

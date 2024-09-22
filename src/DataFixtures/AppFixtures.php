@@ -6,20 +6,23 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\Person;
+use App\Entity\PersonType;
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager) : void
     {
-        PersonFactory::createMany(30);
+        PersonFactory::createMany(27,['active'=>true,'type'=>PersonType::PATIENT]);
+        PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
 
-        $repo = $manager->getRepository(Person::class);
 
-        $manager->flush();
-        $all = $repo->findAll();
-        $ids = array_rand($all,5);
-        $all[$ids[0]]->setPayer($all[$ids[1]]);
-        $all[$ids[2]]->setPayer($all[$ids[3]]);
-        $all[$ids[4]]->setPayer($all[$ids[3]]);
+        $patients = PersonFactory::findBy(['type'=>PersonType::PATIENT]);
+        $keys = array_rand($patients,6);
+        $patients[$keys[0]]->_real()->setPayer($patients[$keys[1]]->_real());
+        $patients[$keys[2]]->_real()->setPayer($patients[$keys[3]]->_real());
+        $payers = PersonFactory::findBy(['type'=>PersonType::PAYER]);
+        $patients[$keys[4]]->_real()->setPayer($payers[0]->_real());
+        $patients[$keys[5]]->_real()->setPayer($payers[1]->_real());
+
         $manager->flush();
     }
 }
