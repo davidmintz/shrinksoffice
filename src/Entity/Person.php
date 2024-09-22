@@ -63,6 +63,9 @@ class Person
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $payer = null;
 
+    #[ORM\Column(enumType: PersonType::class)]
+    private ?PersonType $type = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -245,6 +248,18 @@ class Person
     public function setPayer(?self $payer): static
     {
         $this->payer = $payer;
+
+        return $this;
+    }
+
+    public function getType(): ?PersonType
+    {
+        return $this->type;
+    }
+
+    public function setType(PersonType $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
