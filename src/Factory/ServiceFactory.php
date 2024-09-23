@@ -68,11 +68,11 @@ final class ServiceFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'cancelled' => self::faker()->boolean(90),
-            'date' => null,//self::faker()->dateTime(),
-            'duration' => 45, //self::faker()->numberBetween(1, 32767),
-            'fee' => null,self::faker()->numberBetween(1, 32767),
-            'notes' => '',self::faker()->text(300),
+            'cancelled' => self::faker()->boolean(95),
+            'date' => null,  //self::faker()->dateTime(),
+            'duration' => 45,  //self::faker()->numberBetween(1, 32767),
+            'fee' => null, //self::faker()->boolean(75) ? 25000 :   self::faker()->randomElement([15000,17500,20000]),
+            'notes' => '',//self::faker()->text(300),
             'time' => null, // TODO add TIME type manually
         ];
     }

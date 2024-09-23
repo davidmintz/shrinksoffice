@@ -4,14 +4,50 @@ namespace App\DataFixtures;
 use App\Factory\PersonFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Doctrine\ORM\QueryBuilder;
-use App\Entity\Person;
+//use Doctrine\ORM\QueryBuilder;
+//use App\Entity\Person;
+use App\Factory\ServiceFactory;
 use App\Entity\PersonType;
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager) : void
     {
-        PersonFactory::createMany(27,['active'=>true,'type'=>PersonType::PATIENT]);
+
+        $times = ServiceFactory::$times;
+
+        PersonFactory::createMany(count($times),['active'=>true,'type'=>PersonType::PATIENT]);
+        $patients = PersonFactory::all();
+        $when = \DateTime::createFromFormat('U',strtotime("-3 months"));
+        // rewind to 1st of month
+        $when->setDate($when->format('Y'),$when->format('m'),1);
+
+        // six days per week
+        for ($i = 0; $i <= 5; $i++) {
+            // advance by one if it happens to be Sunday
+            if ($when->format('D') === 'Sun') {
+                $when->add(new \DateInterval('P1D'));
+            }
+            $days_appointments = array_filter($times, fn($time) => substr($time,0,3) == $when->format('D'));
+            foreach ($days_appointments  as $appt) {
+                $appointment_date = \DateTime::createFromInterface($when);
+                preg_match('/ (\d{1,2})(\d\d)$/',$appt,$m);
+                $hr = $m[1]; $mm = (int)$m[2];
+                $appointment_date->setTime($hr,$mm,);
+                echo "appointment will be ".$appointment_date->format('D Y-m-d H:i:s'),"\n";
+                $patient = array_pop($patients);
+                $session = ServiceFactory::createOne([
+                        'patients'=>[$patient],
+                        'time'=>$appointment_date,
+                        'date'=>$appointment_date,
+                        'fee' => $patient->getFee(),
+                    ]
+                );
+            }
+            $when->add(new \DateInterval('P1D'));
+
+        }
+
+
         PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
 
 
