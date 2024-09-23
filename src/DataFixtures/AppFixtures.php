@@ -33,7 +33,7 @@ class AppFixtures extends Fixture
                 preg_match('/ (\d{1,2})(\d\d)$/',$appt,$m);
                 $hr = $m[1]; $mm = (int)$m[2];
                 $appointment_date->setTime($hr,$mm,);
-                echo "appointment will be ".$appointment_date->format('D Y-m-d H:i:s'),"\n";
+                //echo "appointment: ".$appointment_date->format('D Y-m-d H:i:s'),"\n";
                 $patient = array_pop($patients);
                 $session = ServiceFactory::createOne([
                         'patients'=>[$patient],
@@ -44,13 +44,24 @@ class AppFixtures extends Fixture
                 );
             }
             $when->add(new \DateInterval('P1D'));
-
         }
-
-
+        // and repeat...
+        $sessions = ServiceFactory::all();
+        foreach ($sessions as $session) {
+            $date = \DateTime::createFromInterface($session->getDate());
+            for ($i = 0; $i <= 13; $i++) {
+                $date->add(new \DateInterval('P7D'));
+                ServiceFactory::createOne(
+                    [
+                        'patients'=>[$patient],
+                        'time'=>$session->getTime(),
+                        'date'=>$date,
+                        'fee' => $patient->getFee(),
+                    ]
+                );
+            }
+        }
         PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
-
-
         $patients = PersonFactory::findBy(['type'=>PersonType::PATIENT]);
         $keys = array_rand($patients,6);
         $patients[$keys[0]]->_real()->setPayer($patients[$keys[1]]->_real());
