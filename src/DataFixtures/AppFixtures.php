@@ -31,12 +31,19 @@ class AppFixtures extends Fixture
             foreach ($days_appointments  as $appt) {
                 $appointment_date = \DateTime::createFromInterface($when);
                 preg_match('/ (\d{1,2})(\d\d)$/',$appt,$m);
-                $hr = $m[1]; $mm = (int)$m[2];
+                $hr = (int)$m[1]; $mm = (int)$m[2];
                 $appointment_date->setTime($hr,$mm,);
                 //echo "appointment: ".$appointment_date->format('D Y-m-d H:i:s'),"\n";
                 $patient = array_pop($patients);
+                if (count($patients) === 0) {
+                    echo "DEBUG: last patient\n";
+                    $other_patient = PersonFactory::createOne(['active'=>true,'type'=>PersonType::PATIENT]);
+                    $these_patients = [$patient,$other_patient];
+                } else {
+                    $these_patients = [$patient,];
+                }
                 $session = ServiceFactory::createOne([
-                        'patients'=>[$patient],
+                        'patients'=>$these_patients,
                         'time'=>$appointment_date,
                         'date'=>$appointment_date,
                         'fee' => $patient->getFee(),
@@ -47,13 +54,16 @@ class AppFixtures extends Fixture
         }
         // and repeat...
         $sessions = ServiceFactory::all();
+        $patients = PersonFactory::all();
         foreach ($sessions as $session) {
+            $patient = array_pop($patients);
             $date = \DateTime::createFromInterface($session->getDate());
+            //if (count($patients) == 2)
             for ($i = 0; $i <= 16; $i++) {
                 $date->add(new \DateInterval('P7D'));
                 ServiceFactory::createOne(
                     [
-                        'patients'=>[$patient],
+                        'patients'=>$session->getPatients(),
                         'time'=>$session->getTime(),
                         'date'=>$date,
                         'fee' => $patient->getFee(),
