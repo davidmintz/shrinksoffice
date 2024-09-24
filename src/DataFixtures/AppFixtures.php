@@ -49,7 +49,7 @@ class AppFixtures extends Fixture
         $sessions = ServiceFactory::all();
         foreach ($sessions as $session) {
             $date = \DateTime::createFromInterface($session->getDate());
-            for ($i = 0; $i <= 13; $i++) {
+            for ($i = 0; $i <= 16; $i++) {
                 $date->add(new \DateInterval('P7D'));
                 ServiceFactory::createOne(
                     [
