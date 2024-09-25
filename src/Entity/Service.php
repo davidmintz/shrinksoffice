@@ -40,6 +40,10 @@ class Service
     #[ORM\ManyToMany(targetEntity: Person::class)]
     private Collection $patients;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Person $payer = null;
+
     public function __construct()
     {
         $this->patients = new ArrayCollection();
@@ -142,6 +146,18 @@ class Service
     public function removePatient(Person $patient): static
     {
         $this->patients->removeElement($patient);
+
+        return $this;
+    }
+
+    public function getPayer(): ?Person
+    {
+        return $this->payer;
+    }
+
+    public function setPayer(?Person $payer): static
+    {
+        $this->payer = $payer;
 
         return $this;
     }

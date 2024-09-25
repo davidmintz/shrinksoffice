@@ -74,6 +74,7 @@ final class ServiceFactory extends PersistentProxyObjectFactory
             'fee' => null, //self::faker()->boolean(75) ? 25000 :   self::faker()->randomElement([15000,17500,20000]),
             'notes' => '',//self::faker()->text(300),
             'time' => null, // TODO add TIME type manually
+            'payer' => null,
         ];
     }
 

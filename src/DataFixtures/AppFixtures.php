@@ -49,6 +49,7 @@ class AppFixtures extends Fixture
                         'time'=>$appointment_date,
                         'date'=>$appointment_date,
                         'fee' => $fee,
+                        'payer' => $patient->getPayer() ?? $patient,
                     ]
                 );
             }
@@ -68,6 +69,7 @@ class AppFixtures extends Fixture
                         'time'=>$session->getTime(),
                         'date'=>$date,
                         'fee' => $patient->getFee(),
+                        'payer' => $patient->getPayer() ?? $patient,
                     ]
                 );
             }
