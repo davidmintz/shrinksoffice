@@ -21,7 +21,17 @@ class AppFixtures extends Fixture
         $times = ServiceFactory::$times;
 
         PersonFactory::createMany(count($times),['active'=>true,'type'=>PersonType::PATIENT]);
+
+        PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
+        $patients = PersonFactory::findBy(['type'=>PersonType::PATIENT]);
+        $keys = array_rand($patients,6);
+        $patients[$keys[0]]->_real()->setPayer($patients[$keys[1]]->_real());
+        $patients[$keys[2]]->_real()->setPayer($patients[$keys[3]]->_real());
+        $payers = PersonFactory::findBy(['type'=>PersonType::PAYER]);
+        $patients[$keys[4]]->_real()->setPayer($payers[0]->_real());
+        $patients[$keys[5]]->_real()->setPayer($payers[1]->_real());
         $patients = PersonFactory::all();
+
         $when = \DateTime::createFromFormat('U',strtotime("-3 months"));
         // rewind to 1st of month
         $when->setDate($when->format('Y'),$when->format('m'),1);
@@ -63,61 +73,56 @@ class AppFixtures extends Fixture
         }
         // and repeat...
         $sessions = ServiceFactory::all();
-        $patients = PersonFactory::all();
+        //$patients = PersonFactory::all();
         foreach ($sessions as $session) {
-            $patient = array_pop($patients);
+            //$patient = array_pop($patients);
             $date = \DateTime::createFromInterface($session->getDate());
-            for ($i = 0; $i <= 16; $i++) {
+            for ($i = 0; $i <= 4; $i++) {
                 $date->add(new \DateInterval('P7D'));
+                // in case multiple patients
+                $patients = $session->getPatients();
+                if (count($patients) > 1) {
+                    $fee = 30000; // keep it simple
+                    $payer = array_rand($patients->toArray());
+                } else {
+                    $fee = $patients[0]->getFee();
+                    $payer = $patients[0]->getPayer() ?? $patients[0];
+                }
                 ServiceFactory::createOne(
                     [
-                        'patients'=>$session->getPatients(),
+                        'patients'=>$patients,//$session->getPatients(),
                         'time'=>$session->getTime(),
                         'date'=>$date,
-                        'fee' => $patient->getFee(),
-                        'payer' => $patient->getPayer() ?? $patient,
+                        'fee' => $fee, //$patient->getFee(),
+                        'payer' => $payer, //$patient->getPayer() ?? $patient,
                     ]
                 );
             }
         }
-
-
-
-        PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
-        $patients = PersonFactory::findBy(['type'=>PersonType::PATIENT]);
-        $keys = array_rand($patients,6);
-        $patients[$keys[0]]->_real()->setPayer($patients[$keys[1]]->_real());
-        $patients[$keys[2]]->_real()->setPayer($patients[$keys[3]]->_real());
-        $payers = PersonFactory::findBy(['type'=>PersonType::PAYER]);
-        $patients[$keys[4]]->_real()->setPayer($payers[0]->_real());
-        $patients[$keys[5]]->_real()->setPayer($payers[1]->_real());
-        $this->loadSessions($manager);
+        $this->loadInvoices($manager);
         $manager->flush();
     }
 
-    function loadSessions(ObjectManager $manager)  : void
+    function loadInvoices(ObjectManager $manager)  : void
     {
         $first_of_next_month = $this->start_date->add(new \DateInterval('P1M'));
+        $month = $this->start_date->format('m');
         $sessions = ServiceFactory::all();
-        $first_month_sessions = array_filter($sessions, fn($session) => $session->getDate() < $first_of_next_month);
-        //printf ("DEBUG: there are %d sessions and we have %d in the first month\n", count($sessions),count($first_month_sessions));
+        $first_month_sessions = array_filter($sessions, fn($session) => $session->getDate()->format('m') == $month);
+//        foreach ($first_month_sessions as $session) { $date = $session->getDate()->format('Y-m-d');
+//            echo "session date: $date\n";
+//        }
         $payers = [];
         foreach ($first_month_sessions as $service) {
-
             $payers[$service->getPayer()->getId()][] = $service;
-//            printf ("DEBUG: creating/finding invoice for payer %s\n", $service->getPayer()->getLastname());
-//            $invoice = InvoiceFactory::findOrCreate(['payer' => $service->getPayer(),'date'=>  $first_of_next_month,]);
-//            $manager->persist($invoice->_real());
-//            printf ("DEBUG: adding to invoice service rendered on %s\n", $service->getDate()->format("Y-m-d"));
-//            $invoice->addService($service);
         }
-        foreach($payers as $payer => $sessions) {
-            $payer = PersonFactory::find($payer)->_disableAutoRefresh();
-            printf("DEBUG: bill  %s for services on: ",$payer->getLastname());
-            foreach ($sessions as $s) { echo $s->getDate()->format('Y-m-d '); }
-            echo "\n";
+        foreach($payers as $payer_id => $sessions) {
+            $payer = PersonFactory::find($payer_id)->_disableAutoRefresh();
+            InvoiceFactory::createOne([
+                'payer' => $payer,
+                'services' => $sessions,
+                'date' => $first_of_next_month,
+            ]);
         }
-
-        return;
     }
 }
