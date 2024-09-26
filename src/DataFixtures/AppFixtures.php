@@ -1,15 +1,20 @@
 <?php
 
 namespace App\DataFixtures;
+use App\Factory\InvoiceFactory;
 use App\Factory\PersonFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\Persistence\ObjectManager;
 //use Doctrine\ORM\QueryBuilder;
 //use App\Entity\Person;
 use App\Factory\ServiceFactory;
 use App\Entity\PersonType;
+use Faker\Core\DateTime;
+
 class AppFixtures extends Fixture
 {
+    private \DateTimeImmutable $start_date;
     public function load(ObjectManager $manager) : void
     {
 
@@ -20,6 +25,7 @@ class AppFixtures extends Fixture
         $when = \DateTime::createFromFormat('U',strtotime("-3 months"));
         // rewind to 1st of month
         $when->setDate($when->format('Y'),$when->format('m'),1);
+        $this->start_date = \DateTimeImmutable::createFromInterface($when);
 
         // six days per week
         for ($i = 0; $i <= 5; $i++) {
@@ -44,7 +50,7 @@ class AppFixtures extends Fixture
                     $these_patients = [$patient,];
                     $fee = $patient->getFee();
                 }
-                $session = ServiceFactory::createOne([
+                ServiceFactory::createOne([
                         'patients'=>$these_patients,
                         'time'=>$appointment_date,
                         'date'=>$appointment_date,
@@ -74,6 +80,9 @@ class AppFixtures extends Fixture
                 );
             }
         }
+
+
+
         PersonFactory::createMany(2,['active'=>true,'type'=>PersonType::PAYER]);
         $patients = PersonFactory::findBy(['type'=>PersonType::PATIENT]);
         $keys = array_rand($patients,6);
@@ -82,7 +91,33 @@ class AppFixtures extends Fixture
         $payers = PersonFactory::findBy(['type'=>PersonType::PAYER]);
         $patients[$keys[4]]->_real()->setPayer($payers[0]->_real());
         $patients[$keys[5]]->_real()->setPayer($payers[1]->_real());
-
+        $this->loadSessions($manager);
         $manager->flush();
+    }
+
+    function loadSessions(ObjectManager $manager)  : void
+    {
+        $first_of_next_month = $this->start_date->add(new \DateInterval('P1M'));
+        $sessions = ServiceFactory::all();
+        $first_month_sessions = array_filter($sessions, fn($session) => $session->getDate() < $first_of_next_month);
+        //printf ("DEBUG: there are %d sessions and we have %d in the first month\n", count($sessions),count($first_month_sessions));
+        $payers = [];
+        foreach ($first_month_sessions as $service) {
+
+            $payers[$service->getPayer()->getId()][] = $service;
+//            printf ("DEBUG: creating/finding invoice for payer %s\n", $service->getPayer()->getLastname());
+//            $invoice = InvoiceFactory::findOrCreate(['payer' => $service->getPayer(),'date'=>  $first_of_next_month,]);
+//            $manager->persist($invoice->_real());
+//            printf ("DEBUG: adding to invoice service rendered on %s\n", $service->getDate()->format("Y-m-d"));
+//            $invoice->addService($service);
+        }
+        foreach($payers as $payer => $sessions) {
+            $payer = PersonFactory::find($payer)->_disableAutoRefresh();
+            printf("DEBUG: bill  %s for services on: ",$payer->getLastname());
+            foreach ($sessions as $s) { echo $s->getDate()->format('Y-m-d '); }
+            echo "\n";
+        }
+
+        return;
     }
 }
