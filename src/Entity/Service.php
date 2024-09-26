@@ -44,6 +44,9 @@ class Service
     #[ORM\JoinColumn(nullable: false)]
     private ?Person $payer = null;
 
+    #[ORM\ManyToOne(inversedBy: 'services')]
+    private ?Invoice $invoice = null;
+
     public function __construct()
     {
         $this->patients = new ArrayCollection();
@@ -158,6 +161,18 @@ class Service
     public function setPayer(?Person $payer): static
     {
         $this->payer = $payer;
+
+        return $this;
+    }
+
+    public function getInvoice(): ?Invoice
+    {
+        return $this->invoice;
+    }
+
+    public function setInvoice(?Invoice $invoice): static
+    {
+        $this->invoice = $invoice;
 
         return $this;
     }
