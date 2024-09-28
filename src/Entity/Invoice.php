@@ -29,12 +29,19 @@ class Invoice
     #[ORM\OneToMany(targetEntity: Service::class, mappedBy: 'invoice')]
     private Collection $services;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 200)]
     private ?string $internal_notes = null;
+
+    /**
+     * @var Collection<int, Credit>
+     */
+    #[ORM\ManyToMany(targetEntity: Credit::class, mappedBy: 'invoices')]
+    private Collection $credits;
 
     public function __construct()
     {
         $this->services = new ArrayCollection();
+        $this->credits = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -106,5 +113,42 @@ class Invoice
         $this->internal_notes = $internal_notes;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Credit>
+     */
+    public function getCredits(): Collection
+    {
+        return $this->credits;
+    }
+
+    public function addCredit(Credit $credit): static
+    {
+        if (!$this->credits->contains($credit)) {
+            $this->credits->add($credit);
+            $credit->addInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCredit(Credit $credit): static
+    {
+        if ($this->credits->removeElement($credit)) {
+            $credit->removeInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function getTotal() : int
+    {
+        $total = 0;
+        foreach ($this->getCredits() as $credit) {
+            $total += $credit->getAmount();
+        }
+
+        return $total;
     }
 }
