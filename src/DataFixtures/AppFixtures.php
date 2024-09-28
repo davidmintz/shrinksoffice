@@ -1,6 +1,7 @@
 <?php
 
 namespace App\DataFixtures;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PersonFactory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -11,6 +12,7 @@ use Doctrine\Persistence\ObjectManager;
 use App\Factory\ServiceFactory;
 use App\Entity\PersonType;
 use Faker\Core\DateTime;
+use Random\RandomException;
 use function Zenstruck\Foundry\get;
 
 class AppFixtures extends Fixture
@@ -86,13 +88,13 @@ class AppFixtures extends Fixture
         foreach ($sessions as $session) {
 
             $date = \DateTime::createFromInterface($session->getDate());
-            for ($i = 0; $i <= 4; $i++) {
+            for ($i = 0; $i <= 16; $i++) {
                 $date->add(new \DateInterval('P7D'));
                 // in case multiple patients
                 $patients = $session->getPatients();
                 if (count($patients) > 1) {
                     $fee = 30000; // keep it simple
-                    $payer = $patients[array_rand($patients->toArray())];
+                    $payer = $patients[0]; // array_rand($patients->toArray())] gets weird
                 } else {
                     $fee = $patients[0]->getFee();
                     $payer = $patients[0]->getPayer() ?? $patients[0];
@@ -110,6 +112,7 @@ class AppFixtures extends Fixture
             }
         }
         $this->loadInvoices($manager);
+        $this->loadCredits($manager);
         $manager->flush();
     }
 
@@ -117,11 +120,9 @@ class AppFixtures extends Fixture
     {
         $first_of_next_month = $this->start_date->add(new \DateInterval('P1M'));
         $month = $this->start_date->format('m');
-        $sessions = ServiceFactory::all();
-        $first_month_sessions = array_filter($sessions, fn($session) => $session->getDate()->format('m') == $month);
-//        foreach ($first_month_sessions as $session) { $date = $session->getDate()->format('Y-m-d');
-//            echo "session date: $date\n";
-//        }
+        $all_sessions = ServiceFactory::all();
+        $first_month_sessions = array_filter($all_sessions, fn($session) => $session->getDate()->format('m') == $month);
+        // organize into array of payer_id => Service[]
         $payers = [];
         foreach ($first_month_sessions as $service) {
             $payers[$service->getPayer()->getId()][] = $service;
@@ -132,6 +133,46 @@ class AppFixtures extends Fixture
                 'payer' => $payer,
                 'services' => $sessions,
                 'date' => $first_of_next_month,
+            ]);
+        }
+        // and again
+        $second_month_start = $this->start_date->add(new \DateInterval('P1M'));
+        $second_month_sessions =  array_filter($all_sessions, fn($session) => $session->getDate()->format('m') == $second_month_start->format('m'));
+        $payers = [];
+        foreach ($second_month_sessions as $service) {
+            $payers[$service->getPayer()->getId()][] = $service;
+        }
+        $invoice_date = \DateTimeImmutable::createFromInterface($second_month_start)->add(new \DateInterval('P1M'));
+        foreach($payers as $payer_id => $sessions) {
+            $payer = PersonFactory::find($payer_id); $payer->_disableAutoRefresh();
+            InvoiceFactory::createOne([
+                'payer' => $payer,
+                'services' => $sessions,
+                'date' =>$invoice_date,
+            ]);
+        }
+    }
+
+
+    function loadCredits(ObjectManager $manager) : void
+    {
+        // let's say we collected 100% of the first month's invoices
+        $invoices = InvoiceFactory::all();
+        $first_month_invoices = $this->start_date->add(new \DateInterval('P1M'))->format('m');
+        $subset_invoices = array_filter($invoices, fn($invoice) => $invoice->getDate()->format('m') == $first_month_invoices);
+        foreach ($subset_invoices as $invoice) {
+            $days = random_int(6,32);
+            $interval = new \DateInterval('P'.$days.'D');
+            $date = \DateTime::createFromInterface($invoice->getDate())->add($interval);
+            //$invoice->_real();// _real ?
+//            $t = 0;
+//            foreach ($invoice->getServices() as $service) { $t += $service->getFee(); }
+            //printf("DEBUG: current invoice total is %d\n", $t);
+            CreditFactory::createOne([
+                'invoices' => [$invoice],
+                'amount' => $invoice->getTotal(),
+                'payer' => $invoice->getPayer(),
+                'date' => $date,
             ]);
         }
     }
