@@ -11,7 +11,7 @@ use Doctrine\Persistence\ObjectManager;
 //use App\Entity\Person;
 use App\Factory\ServiceFactory;
 use App\Entity\PersonType;
-use Faker\Core\DateTime;
+use Faker\Core\Number;
 use Random\RandomException;
 use function Zenstruck\Foundry\get;
 
@@ -181,15 +181,21 @@ class AppFixtures extends Fixture
 
     protected function create_payments(Array $invoices, $probability = 100) : void
     {
+
         foreach ($invoices as $invoice) {
+
+            // invoice payment date will be $days days after invoice date
             $days = range(6,32); $n_days = $days[array_rand($days)];
             $interval = new \DateInterval('P'.$n_days.'D');
             $date = \DateTime::createFromInterface($invoice->getDate())->add($interval);
-            printf("DEBUG: random-ish \$date is %s\n",$date->format('Y-m-d'));
+
+            // but it's in the future, make it 0 - 10 days ago
             // @todo refactor this
             $today = new \DateTime();
-            if ($date->format('Ymd') >= $today->format('Ymd')) {
-                $date = \DateTime::createFromFormat("U",strtotime("yesterday"));
+            if ($date >= $today) {
+                $n = new Number();
+                $days_ago = $n->numberBetween(0,10);
+                $date = $today->sub(new \DateInterval('P'.$days_ago.'D'));
             }
 
             $t = 0;
@@ -226,6 +232,8 @@ class AppFixtures extends Fixture
 
     }
 }
-/* SELECT i.id, i.date, TRUNCATE(SUM(s.fee)/100, 2) billed , COALESCE(TRUNCATE(c.amount/100,2),0) paid FROM invoice i
+/* SELECT i.id, i.date, TRUNCATE(SUM(s.fee)/100, 2) billed, COALESCE(TRUNCATE(c.amount/100,2),0) paid
+COALESCE(c.date,"") date_paid
+FROM invoice i
 LEFT JOIN credit_invoice ci ON i.id = ci.invoice_id
 LEFT JOIN credit c ON ci.credit_id = c.id JOIN service s ON s.invoice_id = i.id GROUP BY i.id; */
