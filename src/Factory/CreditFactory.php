@@ -48,4 +48,10 @@ final class CreditFactory extends PersistentProxyObjectFactory
             // ->afterInstantiate(function(Credit $credit): void {})
         ;
     }
+
+
+    public static function maybe(int $chance = 80) : bool
+    {
+        return self::faker()->boolean($chance);
+    }
 }
