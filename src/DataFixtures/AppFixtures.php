@@ -106,9 +106,9 @@ class AppFixtures extends Fixture
                     [
                         'patients'=>$patients,//$session->getPatients(),
                         'time'=>$session->getTime(),
+                        'payer' => $payer, //$patient->getPayer() ?? $patient,
                         'date'=>$date,
                         'fee' => $fee, //$patient->getFee(),
-                        'payer' => $payer, //$patient->getPayer() ?? $patient,
                     ]
                 );
             }
@@ -121,75 +121,57 @@ class AppFixtures extends Fixture
     function loadInvoices(ObjectManager $manager)  : void
     {
         /* @todo refactor */
-        $first_of_next_month = $this->start_date->add(new \DateInterval('P1M'));
+        $this->all_sessions = ServiceFactory::all();
+        $invoice_date = $this->start_date->add(new \DateInterval('P1M'));
         $month = $this->start_date->format('m');
-        $all_sessions = ServiceFactory::all();
-        $first_month_sessions = array_filter($all_sessions, fn($session) => $session->getDate()->format('m') == $month);
+        $this->create_invoices($invoice_date,$month);
+        // and again
+        $month = $invoice_date->format('m');
+        $invoice_date = $this->start_date->add(new \DateInterval('P2M'));
+        $this->create_invoices($invoice_date,$month);
+
+        // one more batch
+        $month = $invoice_date->format('m');
+        $invoice_date = $this->start_date->add(new \DateInterval('P3M'));
+        $this->create_invoices($invoice_date,$month);
+    }
+
+    function create_invoices(\DateTimeInterface $invoice_date, string $month) : void
+    {
+        printf("DEBUG: invoice date %s, generate for month %s\n",
+        $invoice_date->format("Y-m-d"),$month);
+        $sessions = array_filter($this->all_sessions,
+            fn($session) => $session->getDate()->format('m') == $month);
+
         // organize into array of payer_id => Service[]
         $payers = [];
-        foreach ($first_month_sessions as $service) {
-            $payers[$service->getPayer()->getId()][] = $service;
+        foreach ($sessions as $session) {
+            $payers[$session->getPayer()->getId()][] = $session;
         }
-        foreach($payers as $payer_id => $sessions) {
+        printf("DEBUG: generating for %d payers\n",count($payers));
+        $i = 0;
+        foreach($payers as $payer_id => $their_sessions) {
             $payer = PersonFactory::find($payer_id); $payer->_disableAutoRefresh();
             InvoiceFactory::createOne([
                 'payer' => $payer,
-                'services' => $sessions,
-                'date' => $first_of_next_month,
+                'services' => $their_sessions,
+                'date' => $invoice_date,
             ]);
+            $i++;
         }
-        // and again
-        $second_month_start = $this->start_date->add(new \DateInterval('P1M'));
-        $second_month_sessions =  array_filter($all_sessions, fn($session) => $session->getDate()->format('m') == $second_month_start->format('m'));
-        $payers = [];
-        foreach ($second_month_sessions as $service) {
-            $payers[$service->getPayer()->getId()][] = $service;
-        }
-        $invoice_date = \DateTimeImmutable::createFromInterface($second_month_start)->add(new \DateInterval('P1M'));
-        foreach($payers as $payer_id => $sessions) {
-            $payer = PersonFactory::find($payer_id); $payer->_disableAutoRefresh();
-            InvoiceFactory::createOne([
-                'payer' => $payer,
-                'services' => $sessions,
-                'date' =>$invoice_date,
-            ]);
-        }
-
-        // one more
-        $third_month_start = $this->start_date->add(new \DateInterval('P2M'));
-        $third_month_sessions =  array_filter($all_sessions, fn($session) => $session->getDate()->format('m') == $third_month_start->format('m'));
-        $payers = [];
-        foreach ($third_month_sessions as $service) {
-            $payers[$service->getPayer()->getId()][] = $service;
-        }
-        $invoice_date = \DateTimeImmutable::createFromInterface($third_month_start)->add(new \DateInterval('P1M'));
-        foreach($payers as $payer_id => $sessions) {
-            $payer = PersonFactory::find($payer_id); $payer->_disableAutoRefresh();
-            InvoiceFactory::createOne([
-                'payer' => $payer,
-                'services' => $sessions,
-                'date' =>$invoice_date,
-            ]);
-        }
+        print("DEBUG: created $i invoices\n");
     }
-
-    protected function create_sessions(String $month)
-    {
-
-    }
-
 
     protected function create_payments(Array $invoices, $probability = 100) : void
     {
-
         foreach ($invoices as $invoice) {
 
             // invoice payment date will be $days days after invoice date
-            $days = range(6,32); $n_days = $days[array_rand($days)];
-            $interval = new \DateInterval('P'.$n_days.'D');
+            $days = (new Number())->numberBetween(6,32);
+            $interval = new \DateInterval('P'.$days.'D');
             $date = \DateTime::createFromInterface($invoice->getDate())->add($interval);
 
-            // but it's in the future, make it 0 - 10 days ago
+            // if date is in the future, make it 0-10 days ago
             // @todo refactor this
             $today = new \DateTime();
             if ($date >= $today) {
@@ -222,12 +204,12 @@ class AppFixtures extends Fixture
 
         $second_month_invoices = $this->start_date->add(new \DateInterval('P2M'))->format('m');
         $subset_invoices = array_filter($invoices, fn($invoice) => $invoice->getDate()->format('m') == $second_month_invoices);
-        printf("DEBUG: iterating over %d invoices\n",count($subset_invoices));
+//        printf("DEBUG: iterating over %d invoices\n",count($subset_invoices));
         $this->create_payments($subset_invoices);
 
         $third_month_invoices = $this->start_date->add(new \DateInterval('P3M'))->format('m');
         $subset_invoices = array_filter($invoices, fn($invoice) => $invoice->getDate()->format('m') == $third_month_invoices);
-        printf("DEBUG: iterating over %d invoices\n",count($subset_invoices));
+//        printf("DEBUG: iterating over %d invoices\n",count($subset_invoices));
         $this->create_payments($subset_invoices,75);
 
     }
