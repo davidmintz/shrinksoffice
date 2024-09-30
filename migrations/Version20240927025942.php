@@ -14,7 +14,7 @@ final class Version20240927025942 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'add amount property to Credit entity (duh)';
     }
 
     public function up(Schema $schema): void
