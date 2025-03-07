@@ -6,10 +6,14 @@
     <title>{% block title %}ShrinksOffice{% endblock %}</title>
     {% block stylesheets %}
     {% endblock %}
-
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
     {% endblock %}
+    <script type="module">
+        import { Application } from "@hotwired/stimulus";
+        window.Stimulus = Application.start();
+    </script>
+    <script type="module" src="{{ asset('bootstrap.js') }}"></script>
 </head>
 <body>
     <div class="container" style="max-width: 1200px; margin: 0 auto" >

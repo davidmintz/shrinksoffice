@@ -11,7 +11,7 @@ import { Controller } from '@hotwired/stimulus';
  */
 export default class extends Controller {
     connect() {
-        this.element.textContent = 'Hello Stimulus! Edit me in assets/controllers/hello_controller.js';
-        console.log('Hello Stimulus! This is coming from hello_controller.js');
+        this.element.textContent = 'Hello Stimulus! FUCK. Praise fucking jesus and say shit. this is assets/controllers/hello_controller.js';
+        console.log('Hello Stimulus! This is coming from hello_controller. say shit');
     }
 }
