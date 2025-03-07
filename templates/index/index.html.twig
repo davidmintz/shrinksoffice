@@ -1,5 +1,22 @@
 {% extends 'base.html.twig' %}
 {% block title %}main page | {{ parent() }}{% endblock %}
 {% block body %}
+    <script type="module">
+        import { Application, Controller } from "https://unpkg.com/@hotwired/stimulus/dist/stimulus.js"
+        {#import { Application, Controller } from {{asset(' assets/vendor/@hotwired/stimulus/stimulus.index.js')}};#}
+        window.Stimulus = Application.start()
+
+        Stimulus.register("hello", class extends Controller {
+            static targets = [ "name" ]
+
+            connect() {
+                console.log("fucking PLEASE???");
+                this.element.textContent = 'Hello Stimulus! this is an inline SCRIPT of type module';
+            }
+        })
+    </script>
 <p class="mx-auto p-4 border border-info rounded mt-4" style="max-width: 600px">This is your index placeholder page</p>
+    <p>fucking shit?</p>
+    <div style="min-height: 100px" class="border border-success p-4"{{ stimulus_controller('hello') }}></div>
+
 {% endblock %}
