@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        @media print, screen {
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                font-size: 12pt;
+            }
+
+            /* Return Address (Top Window) */
+            #return_address {
+                position: absolute;
+                top: 0.5in;
+                left: 0.75in;
+                width: 3in;
+                line-height: 1.2;
+            }
+
+            /* Recipient Address (Bottom Window) */
+            #address {
+                position: absolute;
+                top: 1.875in;
+                left: 0.875in;
+                width: 3in;
+                line-height: 1.2;
+            }
+
+            /* Invoice Content */
+            .invoice-details {
+                margin-top: 3in;
+                padding: 1in;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Return Address -->
+<div id="return_address">
+    {{ sender_name }}<br>
+    {{ sender_address }}<br>
+    {{ sender_city }}, {{ sender_state }} {{ sender_zip }}
+</div>
+
+<!-- Recipient Address -->
+<div id="address">
+    {{ recipient_name }}<br>
+    {{ recipient_address }}<br>
+    {{ recipient_city }}, {{ recipient_state }} {{ recipient_zip }}
+</div>
+
+<!-- Invoice Content -->
+<div class="invoice-details">
+    <h1>Invoice #{{ invoice_id }}</h1>
+    <p>Date: {{ invoice_date }}</p>
+    <p>For services rendered:</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Date of Service</th>
+            <th>Duration</th>
+            <th>Fee</th>
+            <th>Diagnostic Code</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for service in services %}
+            <tr>
+                <td>{{ service.date|date('Y-m-d') }}</td>
+                <td>{{ service.duration }}</td>
+                <td>${{ service.fee }}</td>
+                <td>{{ service.diagnostic_code }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p><strong>Total Due: ${{ total_due }}</strong></p>
+</div>
+</body>
+</html>
