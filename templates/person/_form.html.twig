@@ -1,44 +1,24 @@
 {#{{ form_start(form, {'attr': {'id': 'person-form', 'action' '/people/add'}}) }}#}
 <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate>
-        <div class="row mb-3">
-{#            {{  form_label(form.firstname, 'first name', {attr:{'class':'text-md-end col-sm-2 col-form-label'  }}) }}#}
-            <label for="firstname" class="text-md-end  col-sm-2 col-form-label">first name</label>
-            <div class="col-sm-4">
-                {{ form_errors(form.firstname) }}
-                {{ form_widget(form.firstname) }}
+    {% set subset_fields = ['firstname', 'middlename', 'lastname', 'alias', 'email', 'phone'] %}
+
+    <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate>
+        {% for row in subset_fields|batch(2) %}
+            <div class="row mb-3">
+                {% for field_name in row %}
+                    {% if attribute(form, field_name) is defined %}
+                        <label for="{{ form[field_name].vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                            {{ form[field_name].vars.label|default(field_name|capitalize) }}
+                        </label>
+                        <div class="col-sm-4">
+                            {{ form_errors(form[field_name]) }}
+                            {{ form_widget(form[field_name]) }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
-            <label for="middlename" class="text-md-end col-sm-2 col-form-label">middle name</label>
-            <div class="col-sm-4">
-                {{ form_errors(form.middlename) }}
-                {{ form_widget(form.middlename) }}
-            </div>
-        </div>
-    <div class="row mb-3">
-        {#            {{  form_label(form.firstname, 'first name', {attr:{'class':'text-md-end col-sm-2 col-form-label'  }}) }}#}
-        <label for="lastname" class="text-md-end col-sm-2 col-form-label">last name</label>
-        <div class="col-sm-4">
-            {{ form_errors(form.lastname) }}
-            {{ form_widget(form.lastname) }}
-        </div>
-        <label for="alias" class="text-md-end col-sm-2 col-form-label">alias/initials</label>
-        <div class="col-sm-4">
-            {{ form_errors(form.alias) }}
-            {{ form_widget(form.alias) }}
-        </div>
-    </div>
-    <div class="row mb-3">
-        {#            {{  form_label(form.firstname, 'first name', {attr:{'class':'text-md-end col-sm-2 col-form-label'  }}) }}#}
-        <label for="email" class="text-md-end col-sm-2 col-form-label">email</label>
-        <div class="col-sm-4">
-            {{ form_errors(form.email) }}
-            {{ form_widget(form.email) }}
-        </div>
-        <label for="phone" class="text-md-end col-sm-2 col-form-label">phone</label>
-        <div class="col-sm-4">
-            {{ form_errors(form.phone) }}
-            {{ form_widget(form.phone) }}
-        </div>
-    </div>
+        {% endfor %}
+    </form>
 
 
 </form>
