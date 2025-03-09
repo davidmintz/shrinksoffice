@@ -63,7 +63,7 @@ class Person
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $payer = null;
 
-    #[ORM\Column(enumType: PersonType::class)]
+    #[ORM\Column(type: "string", length: 10, enumType: PersonType::class)]
     private ?PersonType $type = null;
 
     public function getId(): ?int
@@ -257,10 +257,9 @@ class Person
         return $this->type;
     }
 
-    public function setType(PersonType $type): static
+    public function setType(PersonType|string $type): void
     {
-        $this->type = $type;
-
-        return $this;
+        // Allow setting either an Enum or a string (for form handling)
+        $this->type = is_string($type) ? PersonType::from($type) : $type;
     }
 }
