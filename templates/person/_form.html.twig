@@ -42,7 +42,29 @@
                 {{ form_errors(form.postal_code) }}
                 {{ form_widget(form.postal_code, { 'attr': {'style': 'width: 14ch'} }) }}
             </div>
+
         </div>
+        <div class="row mb-3" data-controller="autocomplete">
+            <label for="{{ form.payer.vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                {{ form_label(form.payer, 'Payer') }}
+            </label>
+            <div class="col-sm-4 position-relative">
+                {{ form_widget(form.payer, {
+                    'attr': {
+                        'data-autocomplete-target': 'input',
+                        'data-action': 'input->autocomplete#search',
+                        'placeholder': 'last name[, first]',
+                        'autocomplete': 'off',
+                        'class': 'form-control'
+                    }
+                }) }}
+                <div data-autocomplete-target="results"
+                     class="autocomplete-results position-absolute w-100 bg-white border">
+                </div>
+            </div>
+        </div>
+
+
 
         {% set radio_fields = {
             'type': 'status',
@@ -63,12 +85,7 @@
                 </div>
             {% endfor %}
         </div>
-
-
-
     </form>
 
-
-</form>
 {#<button type="submit" class="btn btn-primary">Save</button>#}
 

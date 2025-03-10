@@ -15,6 +15,16 @@ class PersonRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Person::class);
     }
+    public function findActiveByName(string $query)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.firstname LIKE :query OR p.lastname LIKE :query')
+            ->andWhere('p.active = 1')
+            ->setParameter('query', "%$query%")
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
 
 //    /**
 //     * @return Person[] Returns an array of Person objects

@@ -67,6 +67,14 @@ class PersonType extends AbstractType
                 'label' => 'fee',
                 'required' => false,
             ])
+            ->add('payer', EntityType::class, [
+                'class' => Person::class,
+                'choice_label' => function (Person $person) {
+                    return sprintf('%s %s', $person->getFirstname(), $person->getLastname());
+                },
+                'autocomplete' => true, // UX Autocomplete magic
+                'required' => false, // Allow empty selection
+            ])
             ->add('type', ChoiceType::class, [
                 'label' => 'status',
                 'choices' => [

@@ -1,5 +1,14 @@
 import { startStimulusApp } from '@symfony/stimulus-bundle';
+import AutocompleteController from './controllers/autocomplete_controller.js';
 
+// Start Stimulus and register the controller
 const app = startStimulusApp();
-// register any custom, 3rd party controllers here
-// app.register('some_controller_name', SomeImportedController);
+app.register('autocomplete', AutocompleteController);
+
+console.log("✅ Manually registered AutocompleteController");
+
+// Enable Stimulus debug mode
+window.Stimulus = app;
+window.Stimulus.debug = true;
+console.log("✅ Stimulus debug mode enabled");
+
