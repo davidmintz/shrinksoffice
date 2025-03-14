@@ -214,8 +214,8 @@ class AppFixtures extends Fixture
 
     }
 }
-/* SELECT i.id, i.date, TRUNCATE(SUM(s.fee)/100, 2) billed, COALESCE(TRUNCATE(c.amount/100,2),0) paid
-COALESCE(c.date,"") date_paid
-FROM invoice i
-LEFT JOIN credit_invoice ci ON i.id = ci.invoice_id
-LEFT JOIN credit c ON ci.credit_id = c.id JOIN service s ON s.invoice_id = i.id GROUP BY i.id; */
+/*
+SELECT i.id, i.date, TRUNCATE(SUM(s.fee)/100, 2) billed, COALESCE(TRUNCATE(c.amount/100,2),0) paid,
+COALESCE(c.date,"") date_paid FROM invoice i LEFT JOIN credit_invoice ci ON i.id = ci.invoice_id
+LEFT JOIN credit c ON ci.credit_id = c.id JOIN service s ON s.invoice_id = i.id GROUP BY i.id;
+*/
