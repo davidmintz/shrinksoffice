@@ -6,9 +6,9 @@
     <title>{% block title %}ShrinksOffice{% endblock %}</title>
     {% block stylesheets %}
     {% endblock %}
-
     {% block javascripts %}
         {% block importmap %}{{ importmap('app') }}{% endblock %}
+        <script type="module" src="{{ asset('bootstrap.js') }}"></script>
     {% endblock %}
 </head>
 <body>

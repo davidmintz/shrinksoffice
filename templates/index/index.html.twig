@@ -1,5 +1,11 @@
 {% extends 'base.html.twig' %}
 {% block title %}main page | {{ parent() }}{% endblock %}
 {% block body %}
-<p class="mx-auto p-4 border border-info rounded mt-4" style="max-width: 600px">This is your index placeholder page</p>
+<div class="mx-auto p-4 border border-info rounded mt-4" style="max-width: 800px">
+    This is your index placeholder page
+    <div {{ stimulus_controller('hello') }}></div>
+    <p>so what the fuck??</p>
+</div>
+
+
 {% endblock %}
