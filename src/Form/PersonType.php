@@ -2,6 +2,7 @@
 namespace App\Form;
 
 use App\Entity\Person;
+use App\Repository\PersonRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -93,6 +94,12 @@ class PersonType extends AbstractType
                     return $person->getLastname() . ', '. $person->getFirstname();
                 },
                 'placeholder' => '(if other than patient)', 'required'=>false,
+                'query_builder' => function (PersonRepository $personRepository) {
+                    return $personRepository->createQueryBuilder('p')
+                        ->where('p.active = 1')
+                        ->orderBy('p.lastname', 'ASC')
+                        ->addOrderBy('p.firstname', 'ASC');
+                },
             ])
             ->add('notes', TextareaType::class, ['empty_data' => '', 'required' => false])
             ->add('save', SubmitType::class, [
