@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Person;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,6 +15,16 @@ class PersonRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Person::class);
+    }
+
+    public function findActive(): Array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.active = 1')
+            ->orderBy('p.lastname', 'ASC')
+            ->orderBy('p.firstname', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**
