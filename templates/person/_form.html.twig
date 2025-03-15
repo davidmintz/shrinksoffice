@@ -1,0 +1,80 @@
+{#{{ form_start(form, {'attr': {'id': 'person-form', 'action' '/people/add'}}) }}#}
+
+<form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate>
+    {% set subset_fields = ['firstname', 'middlename', 'lastname', 'alias', 'email', 'phone',
+        'address','secondary_address', ] %}
+    <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate>
+        {% for row in subset_fields|batch(2) %}
+            <div class="row mb-3">
+                {% for field_name in row %}
+                    {% if attribute(form, field_name) is defined %}
+                        <label for="{{ form[field_name].vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                            {{ form[field_name].vars.label|default(field_name) }}
+                        </label>
+                        <div class="col-sm-4">
+                            {{ form_errors(form[field_name]) }}
+                            {{ form_widget(form[field_name],{'attr': {'class':'form-control'}}) }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <div class="row mb-3">
+            <label for="{{ form.city.vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                {{ form_label(form.city) }}
+            </label>
+            <div class="col-sm-3">
+                {{ form_errors(form.city) }}
+                {{ form_widget(form.city,{'attr': {'class':'form-control'}}) }}
+            </div>
+
+            <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                {{ form_label(form.state,) }}
+            </label>
+            <div class="col-sm-2">
+                {{ form_errors(form.state) }}
+                {{ form_widget(form.state, { 'attr': {'style': 'width: 5ch', 'class': 'form-control'} }) }}
+            </div>
+
+            <label for="{{ form.postal_code.vars.id }}" class="text-md-end col-sm-1 col-form-label">
+                {{ form_label(form.postal_code, 'zip',{'attr': {'class':'form-control'}}) }}
+            </label>
+            <div class="col-sm-2">
+                {{ form_errors(form.postal_code) }}
+                {{ form_widget(form.postal_code, { 'attr': {'style': 'width: 14ch','class':'form-control'} }) }}
+            </div>
+
+        </div>
+        <div class="row mb-3">
+            <label for="{{ form.payer.vars.id }}" class="text-md-end col-sm-2 col-form-label">
+                {{ form_label(form.payer, 'payer',)   }}
+            </label>
+            <div class="col-sm-4 position-relative">
+                {{ form_widget(form.payer, {'attr': {'class':'form-select'}}) }}
+            </div>
+        </div>
+        {% set radio_fields = {
+            'type': 'status',
+            'active': 'active?'
+        } %}
+        <div class="row mb-3">
+            {% for field, label in radio_fields %}
+                <label class="text-md-end col-sm-2 col-form-label">{{ form_label(attribute(form, field), label) }}</label>
+                <div class="col-sm-4 d-flex align-items-center">
+                    {{ form_errors(attribute(form, field)) }}
+                    {% for choice in attribute(form, field) %}
+                        <div class="form-check form-check-inline">
+                            {{ form_widget(choice) }}
+                            {{ form_label(choice, null, { 'class': 'form-check-label' }) }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row mb-3">
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-primary btn-lg">Save</button>
+            </div>
+        </div>
+    </form>
+
