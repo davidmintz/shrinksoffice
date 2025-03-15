@@ -28,10 +28,10 @@
                 {{ form_widget(form.city,{'attr': {'class':'form-control'}}) }}
             </div>
 
-            <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-2 col-form-label">
+            <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-1 col-form-label">
                 {{ form_label(form.state,) }}
             </label>
-            <div class="col-sm-2">
+            <div class="col-sm-1">
                 {{ form_errors(form.state) }}
                 {{ form_widget(form.state, { 'attr': {'style': 'width: 5ch', 'class': 'form-control'} }) }}
             </div>
@@ -39,7 +39,7 @@
             <label for="{{ form.postal_code.vars.id }}" class="text-md-end col-sm-1 col-form-label">
                 {{ form_label(form.postal_code, 'zip',{'attr': {'class':'form-control'}}) }}
             </label>
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 {{ form_errors(form.postal_code) }}
                 {{ form_widget(form.postal_code, { 'attr': {'style': 'width: 14ch','class':'form-control'} }) }}
             </div>
