@@ -47,7 +47,7 @@ class PersonController extends AbstractController
 
             // Otherwise, fallback to a normal redirect
             $this->addFlash('success', 'Person added successfully!');
-            return $this->redirectToRoute('people_list');
+            return $this->redirectToRoute('person_list');
         }
 
         // If validation fails and it's an AJAX request, return the form HTML
