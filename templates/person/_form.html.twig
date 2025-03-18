@@ -12,8 +12,8 @@
                             {{ form[field_name].vars.label|default(field_name) }}
                         </label>
                         <div class="col-sm-4">
-                            {{ form_errors(form[field_name]) }}
-                            {{ form_widget(form[field_name],{'attr': {'class':'form-control'}}) }}
+                            {{ form_widget(form[field_name], {'attr': {'class': 'form-control' ~ (form_errors(form[field_name]) ? ' is-invalid' : '') }}) }}
+                            <div class="invalid-feedback">{{ form_errors(form[field_name]) }}</div>
                         </div>
                     {% endif %}
                 {% endfor %}
@@ -24,24 +24,26 @@
                 {{ form_label(form.city) }}
             </label>
             <div class="col-sm-3">
-                {{ form_errors(form.city) }}
-                {{ form_widget(form.city,{'attr': {'class':'form-control'}}) }}
+                {{ form_widget(form.city, {'attr': {'class': 'form-control' ~ (form_errors(form.city) ? ' is-invalid' : '') }}) }}
+                <div class="invalid-feedback">{{ form_errors(form.city) }}</div>
             </div>
 
             <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-1 col-form-label">
                 {{ form_label(form.state,) }}
             </label>
-            <div class="col-sm-1">
-                {{ form_errors(form.state) }}
-                {{ form_widget(form.state, { 'attr': {'style': 'width: 5ch', 'class': 'form-control'} }) }}
+            <div class="col-sm-2">
+                {{ form_widget(form.state, { 'attr': {'style': 'width: 7ch', 'class': 'form-control' ~ (form_errors(form.city) ? ' is-invalid' : '')} }) }}
+                <div class="invalid-feedback">{{ form_errors(form.state) }}</div>
             </div>
 
             <label for="{{ form.postal_code.vars.id }}" class="text-md-end col-sm-1 col-form-label">
                 {{ form_label(form.postal_code, 'zip',{'attr': {'class':'form-control'}}) }}
             </label>
             <div class="col-sm-3">
-                {{ form_errors(form.postal_code) }}
-                {{ form_widget(form.postal_code, { 'attr': {'style': 'width: 14ch','class':'form-control'} }) }}
+                {{ form_widget(form.postal_code, {'attr': {'class': 'form-control' ~ (form_errors(form.postal_code) ? ' is-invalid' : '') }}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.postal_code) }}
+                </div>
             </div>
 
         </div>
@@ -53,23 +55,65 @@
                 {{ form_widget(form.payer, {'attr': {'class':'form-select'}}) }}
             </div>
         </div>
-        {% set radio_fields = {
-            'type': 'status',
-            'active': 'active?'
-        } %}
+        {# Status & Active Fields (Side-by-Side) #}
+        <div class="row mb-0">
+            {# Status (Enum Type) Field #}
+            <label class="col-sm-2 col-form-label text-md-end">{{ form_label(form.type, 'status') }}</label>
+            <div class="col-sm-4 d-flex align-items-center">
+                {% for choice in form.type.vars.choices %}
+                    <div class="form-check form-check-inline">
+                        <input type="radio"
+                               id="type_{{ choice.value }}"
+                               name="{{ form.type.vars.full_name }}"
+                               value="{{ choice.value }}"
+                               {% if form.type.vars.value == choice.value %}checked{% endif %}
+                               class="form-check-input{% if form_errors(form.type) %} is-invalid{% endif %}">
+                        <label for="status_{{ choice.value }}" class="form-check-label">
+                            {% if choice.value == 'patient' %}
+                                patient
+                            {% elseif choice.value == 'payer' %}
+                                payer only
+                            {% else %}
+                                {{ choice.label }}
+                            {% endif %}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            {# Active (Boolean) Field #}
+            <label class="col-sm-2 col-form-label text-md-end">{{ form_label(form.active, 'active?') }}</label>
+            <div class="col-sm-4 d-flex align-items-center">
+                {% set isInvalid = form_errors(form.active) ? ' is-invalid' : '' %}
+                {% set labelStyle = form_errors(form.active) ? 'color: #dc3545;' : '' %}
+
+                {% for choice in form.active.vars.choices %}
+                    <div class="form-check form-check-inline">
+                        <input type="radio"
+                               id="active_{{ choice.value }}"
+                               name="{{ form.active.vars.full_name }}"
+                               value="{{ choice.value }}"
+                               {% if form.active.vars.value == choice.value %}checked{% endif %}
+                               class="form-check-input{{ isInvalid }}">
+
+                        <label for="active_{{ choice.value }}" class="form-check-label" style="{{ labelStyle }}">
+                            {{ choice.label }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        {# Validation Errors Row #}
         <div class="row mb-3">
-            {% for field, label in radio_fields %}
-                <label class="text-md-end col-sm-2 col-form-label">{{ form_label(attribute(form, field), label) }}</label>
-                <div class="col-sm-4 d-flex align-items-center">
-                    {{ form_errors(attribute(form, field)) }}
-                    {% for choice in attribute(form, field) %}
-                        <div class="form-check form-check-inline">
-                            {{ form_widget(choice) }}
-                            {{ form_label(choice, null, { 'class': 'form-check-label' }) }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+            <div class="col-sm-2"></div> {# Keeps alignment with labels #}
+            <div class="col-sm-4">
+                <div style="font-size:0.9em" class="invalid-feedback d-block">{{ form_errors(form.type) }}</div>
+            </div>
+            <div class="col-sm-2"></div> {# Keeps alignment with labels #}
+            <div class="col-sm-4">
+                <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.active) }}</div>
+            </div>
         </div>
         <div class="row mb-3">
             <div class="d-flex justify-content-center">
@@ -77,4 +121,5 @@
             </div>
         </div>
     </form>
-
+{#    {{ dump(form.type.vars) }}#}
+{#    {{ dump(form.active.vars) }}#}
