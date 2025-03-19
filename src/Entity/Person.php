@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 #[UniqueConstraint(name: "unique_email", columns: ["email"])]
@@ -19,9 +20,11 @@ class Person
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'last name is required', normalizer: 'trim')]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'first name is required', normalizer: 'trim')]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 30, options: ["default" => ''])]
@@ -31,6 +34,8 @@ class Person
     private ?string $alias = null;
 
     #[ORM\Column(length: 60)]
+    #[Assert\NotBlank(message: 'email is required', normalizer: 'trim')]
+    #[Assert\Email(message: 'invalid email address', normalizer: 'trim')]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ["unsigned" => true])]
@@ -40,30 +45,39 @@ class Person
     private ?string $notes = null;
 
     #[ORM\Column(length: 12)]
+    #[Assert\NotBlank(message: 'phone number is required', normalizer: 'trim')]
     private ?string $phone = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'address is required')]
     private ?string $address = null;
 
     #[ORM\Column(length: 50)]
     private ?string $secondary_address = null;
 
     #[ORM\Column(length: 40)]
+    #[Assert\NotBlank(message: 'city is required', normalizer: 'trim')]
     private ?string $city = null;
 
     #[ORM\Column(length: 2)]
+    #[Assert\NotBlank(message: 'state is required', normalizer: 'trim')]
+    #[Assert\Regex(pattern: '/^[A-Z]{2}$/', message: 'two-letter state postal code is required')]
     private ?string $state = null;
 
     #[ORM\Column(length: 10)]
+    #[Assert\NotBlank(message: 'zip code is required', normalizer: 'trim')]
+    #[Assert\Regex(pattern: '/^[0-9]{5}(-\d{4})?$/', message: 'invalid zip code')]
     private ?string $postal_code = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: 'active/inactive is required')]
     private ?bool $active = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $payer = null;
 
     #[ORM\Column(enumType: PersonType::class)]
+    #[Assert\NotBlank(message: 'either "patient" or "payer only" is required')]
     private ?PersonType $type = null;
 
     public function getId(): ?int
