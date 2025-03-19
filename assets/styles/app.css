@@ -11,3 +11,16 @@ nav a {
     color: #842029 !important;
 }
 
+.invalid-feedback ul {
+    list-style-type: none; /* Remove bullets */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margins */
+}
+.invalid-feedback li {
+    font-size: 1.05rem; /* or 14px, 16px, etc., depending on how big you want it */
+
+}
+.form-check-input.is-invalid ~ .form-check-label {
+    color: #dc3545 !important; /* Bootstrap "danger" red */
+    /*font-weight: bold; *//* Optional: Makes it stand out */
+}
