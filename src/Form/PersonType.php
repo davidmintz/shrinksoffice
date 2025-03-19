@@ -7,12 +7,13 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\PersonType as Type;
 
 class PersonType extends AbstractType
 {
@@ -70,14 +71,20 @@ class PersonType extends AbstractType
                 'required' => false,
             ])
             //->add('payer', PersonAutocompleteField::class)
-            ->add('type', ChoiceType::class, [
-                'label' => 'status',
-                'choices' => [
-                    'patient' => 'patient',
-                    'payer only' => 'payer',
-                ],
-                'expanded' => true, // Radio buttons instead of a dropdown
-                'required' => true,
+//            ->add('type', EnumType::class, [
+//                'label' => 'status','class' => 'App\Entity\PersonType',
+//                'choices' => [
+//                    'patient' => 'patient',
+//                    'payer only' => 'payer',
+//                ],
+//                'expanded' => true, // Radio buttons instead of a dropdown
+//                'required' => true,
+//            ])
+            ->add('type', EnumType::class, [
+                'class' => Type::class,
+                'choices' => Type::cases(), // ✅ Ensures choices are valid Enum instances
+                'choice_label' => fn (Type $choice) => $choice->name, // Optional for labels
+                'placeholder' => 'status',
             ])
             ->add('active', ChoiceType::class, [
                 'label' => 'active?',
@@ -106,6 +113,7 @@ class PersonType extends AbstractType
                 'label' => 'Save',
                 'attr' => ['class' => 'btn btn-primary'],
             ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void
