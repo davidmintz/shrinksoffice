@@ -51,10 +51,12 @@ class PersonController extends AbstractController
         }
 
         // If validation fails and it's an AJAX request, return the form HTML
+
         if ($request->isXmlHttpRequest()) {
             return new Response(
                 $this->renderView('person/_form.html.twig', ['form' => $form->createView()]),
-                Response::HTTP_BAD_REQUEST
+
+                Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
 
