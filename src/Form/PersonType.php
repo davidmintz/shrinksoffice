@@ -114,6 +114,8 @@ class PersonType extends AbstractType
                 'attr' => ['class' => 'btn btn-primary'],
             ]);
 
+            $builder->get('fee')->addModelTransformer(new CentsToDollarsTransformer());
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void
