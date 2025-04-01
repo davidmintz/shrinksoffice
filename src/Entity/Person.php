@@ -76,7 +76,7 @@ class Person
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $payer = null;
 
-    #[ORM\Column(enumType: PersonType::class)]
+    #[ORM\Column(type: 'string', enumType: PersonType::class)]
     #[Assert\NotBlank(message: 'either "patient" or "payer only" is required')]
     private ?PersonType $type = null;
 
