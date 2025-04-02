@@ -1,4 +1,4 @@
-{#{{ form_start(form, {'attr': {'id': 'person-form', 'action' '/people/add'}}) }}#}
+
 <div data-controller="person">
 <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate
       data-action="submit->person#submit"
@@ -6,7 +6,6 @@
 >
     {% set subset_fields = ['firstname', 'middlename', 'lastname', 'alias', 'email', 'phone',
         'address','secondary_address', ] %}
-    <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate>
         {% for row in subset_fields|batch(2) %}
             <div class="row mb-3">
                 {% for field_name in row %}
@@ -64,66 +63,75 @@
                 {{ form_widget(form.fee, {'attr': {'class':'form-control','style': 'width: 8ch' }}) }}
             </div>
         </div>
-        {# Status & Active Fields (Side-by-Side) #}
-        <div class="row mb-0">
-            {# Status (Enum Type) Field #}
-            <label class="col-sm-2 col-form-label text-md-end">{{ form_label(form.type, 'status') }}</label>
-            <div class="col-sm-4 d-flex align-items-center">
-                {% for choice in form.type.vars.choices %}
-                    <div class="form-check form-check-inline">
-                        <input type="radio"
-                               id="type_{{ choice.value }}"
-                               name="{{ form.type.vars.full_name }}"
-                               value="{{ choice.value }}"
-                               {% if form.type.vars.value == choice.value %}checked{% endif %}
-                               class="form-check-input{% if form_errors(form.type) %} is-invalid{% endif %}">
-                        <label for="status_{{ choice.value }}" class="form-check-label">
-                            {% if choice.value == 'patient' %}
-                                patient
-                            {% elseif choice.value == 'payer' %}
-                                payer only
-                            {% else %}
-                                {{ choice.label }}
-                            {% endif %}
-                        </label>
+        <div class="row mb-3"><!-- new shit -->
+            <div class="col-md-6">
+                <!-- Active Field -->
+                <div class="form-group row">
+                    <label for="active" class="col-sm-4 col-form-label text-md-end">active?</label>
+                    <div class="col-sm-4 d-flex align-items-center">
+                        {% set isInvalid = form_errors(form.active) ? ' is-invalid' : '' %}
+                        {% set labelStyle = form_errors(form.active) ? 'color: #dc3545;' : '' %}
+
+                        {% for choice in form.active.vars.choices %}
+                            <div class="form-check form-check-inline">
+                                <input type="radio"
+                                       id="active_{{ choice.value }}"
+                                       name="{{ form.active.vars.full_name }}"
+                                       value="{{ choice.value }}"
+                                       {% if form.active.vars.value == choice.value %}checked{% endif %}
+                                       class="form-check-input{{ isInvalid }}">
+
+                                <label for="active_{{ choice.value }}" class="form-check-label" style="{{ labelStyle }}">
+                                    {{ choice.label }}
+                                </label>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-            {# Active (Boolean) Field #}
-            <label class="col-sm-2 col-form-label text-md-end">{{ form_label(form.active, 'active?') }}</label>
-            <div class="col-sm-4 d-flex align-items-center">
-                {% set isInvalid = form_errors(form.active) ? ' is-invalid' : '' %}
-                {% set labelStyle = form_errors(form.active) ? 'color: #dc3545;' : '' %}
+                </div>
+                <div class="col-sm-8 offset-sm-4">
+                    <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.active) }}</div>
+                </div>
+                <!-- "type" (status) field -->
+                <div class="form-group row">
+                    <label for="status" class="col-sm-4 col-form-label text-md-end">status</label>
+                    <div class="col-sm-8 d-flex align-items-center">
+                        {% for choice in form.type.vars.choices %}
+                            <div class="form-check form-check-inline">
+                                <input type="radio"
+                                       id="type_{{ choice.value }}"
+                                       name="{{ form.type.vars.full_name }}"
+                                       value="{{ choice.value }}"
+                                       {% if form.type.vars.value == choice.value %}checked{% endif %}
+                                       class="form-check-input{% if form_errors(form.type) %} is-invalid{% endif %}">
+                                <label for="type_{{ choice.value }}" class="form-check-label">
+                                    {% if choice.value == 'patient' %}
+                                        patient
+                                    {% elseif choice.value == 'payer' %}
+                                        payer only
+                                    {% else %}
+                                        {{ choice.label }}
+                                    {% endif %}
+                                </label>
+                            </div>
 
-                {% for choice in form.active.vars.choices %}
-                    <div class="form-check form-check-inline">
-                        <input type="radio"
-                               id="active_{{ choice.value }}"
-                               name="{{ form.active.vars.full_name }}"
-                               value="{{ choice.value }}"
-                               {% if form.active.vars.value == choice.value %}checked{% endif %}
-                               class="form-check-input{{ isInvalid }}">
-
-                        <label for="active_{{ choice.value }}" class="form-check-label" style="{{ labelStyle }}">
-                            {{ choice.label }}
-                        </label>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
+                <div class="col-sm-8 offset-sm-4">
+                    <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.type) }}</div>
+                </div>
             </div>
-
-        </div>
-
-        {# Validation Errors Row #}
-        <div class="row mb-3">
-            <div class="col-sm-2"></div> {# Keeps alignment with labels #}
-            <div class="col-sm-4">
-                <div style="font-size:0.9em" class="invalid-feedback d-block">{{ form_errors(form.type) }}</div>
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <!-- Notes Field -->
+                <div class="form-group row">
+                    <label for="notes" class="col-sm-4 col-form-label text-md-end">notes</label>
+                    <div class="col-sm-8">
+                        <textarea id="notes" name="notes" class="form-control" rows="5"></textarea>
+                    </div>
+                </div>
             </div>
-            <div class="col-sm-2"></div> {# Keeps alignment with labels #}
-            <div class="col-sm-4">
-                <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.active) }}</div>
-            </div>
-        </div>
+        </div><!-- /new shit -->
         <div class="row mb-3">
             <div class="d-flex justify-content-center">
                 {{ form_widget(form._token) }}
@@ -139,5 +147,4 @@
         </div>
     </form>
 </div>
-{#    {{ dump(form.type.vars) }}#}
-{#    {{ dump(form.active.vars) }}#}
+
