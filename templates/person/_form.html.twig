@@ -22,42 +22,35 @@
             </div>
         {% endfor %}
         <div class="row mb-3">
-            <label for="{{ form.city.vars.id }}" class="text-md-end col-sm-2 col-form-label">
-                {{ form_label(form.city) }}
-            </label>
+            <label for="{{ form.city.vars.id }}" class="text-md-end col-sm-2 col-form-label">city</label>
             <div class="col-sm-3">
                 {{ form_widget(form.city, {'attr': {'class': 'form-control' ~ (form_errors(form.city) ? ' is-invalid' : '') }}) }}
                 <div class="invalid-feedback">{{ form_errors(form.city) }}</div>
             </div>
 
-            <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-1 col-form-label">
-                {{ form_label(form.state,) }}
-            </label>
+            <label for="{{ form.state.vars.id }}" class="text-md-end col-sm-1 col-form-label">state</label>
             <div class="col-sm-2">
                 {{ form_widget(form.state, { 'attr': {'style': 'width: 7ch', 'class': 'form-control' ~ (form_errors(form.city) ? ' is-invalid' : '')} }) }}
                 <div class="invalid-feedback">{{ form_errors(form.state) }}</div>
             </div>
 
-            <label for="{{ form.postal_code.vars.id }}" class="text-md-end col-sm-1 col-form-label">
-                {{ form_label(form.postal_code, 'zip',{'attr': {'class':'form-control'}}) }}
-            </label>
+            <label for="{{ form.postal_code.vars.id }}" class="text-md-end col-sm-1 col-form-label">zip</label>
             <div class="col-sm-3">
                 {{ form_widget(form.postal_code, {'attr': {'class': 'form-control' ~ (form_errors(form.postal_code) ? ' is-invalid' : '') }}) }}
                 <div class="invalid-feedback">
                     {{ form_errors(form.postal_code) }}
                 </div>
             </div>
-
         </div>
         <div class="row mb-3">
             <label for="{{ form.payer.vars.id }}" class="text-md-end col-sm-2 col-form-label">
-                {{ form_label(form.payer, 'payer',)   }}
+                payer
             </label>
             <div class="col-sm-4 position-relative">
                 {{ form_widget(form.payer, {'attr': {'class':'form-select'}}) }}
             </div>
             <label for="{{ form.fee.vars.id }}" class="text-md-end col-sm-2 col-form-label">
-                {{ form_label(form.fee, 'fee',)   }}
+                fee
             </label>
             <div class="col-sm-4 position-relative">
                 {{ form_widget(form.fee, {'attr': {'class':'form-control','style': 'width: 8ch' }}) }}
@@ -66,8 +59,8 @@
         <div class="row mb-3"><!-- new shit -->
             <div class="col-md-6">
                 <!-- Active Field -->
-                <div class="form-group row">
-                    <label for="active" class="col-sm-4 col-form-label text-md-end">active?</label>
+                <fieldset class="form-group row">
+                    <legend class="col-sm-4 col-form-label text-md-end">active?</legend>
                     <div class="col-sm-4 d-flex align-items-center">
                         {% set isInvalid = form_errors(form.active) ? ' is-invalid' : '' %}
                         {% set labelStyle = form_errors(form.active) ? 'color: #dc3545;' : '' %}
@@ -87,13 +80,13 @@
                             </div>
                         {% endfor %}
                     </div>
-                </div>
+                </fieldset>
                 <div class="col-sm-8 offset-sm-4">
                     <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.active) }}</div>
                 </div>
                 <!-- "type" (status) field -->
-                <div class="form-group row">
-                    <label for="status" class="col-sm-4 col-form-label text-md-end">status</label>
+                <fieldset class="form-group row">
+                    <legend class="col-sm-4 col-form-label text-md-end">status</legend>
                     <div class="col-sm-8 d-flex align-items-center">
                         {% for choice in form.type.vars.choices %}
                             <div class="form-check form-check-inline">
@@ -116,7 +109,7 @@
 
                         {% endfor %}
                     </div>
-                </div>
+                </fieldset>
                 <div class="col-sm-8 offset-sm-4">
                     <div  style="font-size:0.9em"  class="invalid-feedback d-block">{{ form_errors(form.type) }}</div>
                 </div>
