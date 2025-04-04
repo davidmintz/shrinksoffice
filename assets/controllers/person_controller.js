@@ -1,11 +1,16 @@
+
 import { Controller } from "@hotwired/stimulus";
 
+/**
+ * @property {HTMLFormElement} formTarget
+ * @property {HTMLElement} successMessageTarget
+ */
 export default class extends Controller {
     static targets = ["form", "successMessage"];
-    /** @property this.formTarget */
+
     submit(event) {
-        event.preventDefault(); // Prevent default form submission
-        // alert("here we are!"); return; // for the time being
+        event.preventDefault();
+
         const form = this.formTarget;
         const formData = new FormData(form);
 
