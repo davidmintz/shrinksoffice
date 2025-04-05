@@ -13,6 +13,8 @@ class CentsToDollarsTransformer implements DataTransformerInterface
 
     public function reverseTransform($value):  int|null
     {
+        // Strip decimal portion, ignore cents
+        $value = preg_replace('/\..*$/', '', $value);
         // Transform from dollars to cents
         return $value !== null ? (int) round($value * 100) : null;
     }
