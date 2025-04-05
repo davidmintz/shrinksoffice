@@ -2,11 +2,5 @@
 {% block title %}add new person | {{ parent() }}{% endblock %}
 {% block body %}
     <h2 class="text-center">add a new person</h2>
-
-    {# Success message placeholder (hidden by default) #}
-    <div id="form-success-message" class="alert alert-success d-none"></div>
-
-    <div id="form-container" >
         {% include 'person/_form.html.twig' %}
-    </div>
 {% endblock %}

@@ -24,8 +24,10 @@ class PersonController extends AbstractController
         ]);
     }
     #[Route('/people/add', name: 'people_add')]
-    public function add(Request $request, EntityManagerInterface $entityManager): Response
+    public function add(Request $request, EntityManagerInterface $entityManager, LoggerInterface $logger): Response
     {
+        $entityType = 'person';
+        $verb = 'created';
 
         $person = new Person();
         $form = $this->createForm(PersonType::class, $person);
@@ -36,33 +38,42 @@ class PersonController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($person);
             $entityManager->flush();
-
+            $logger->debug("we did a flush()");
             // Return JSON if it's an AJAX request
             if ($request->isXmlHttpRequest()) {
+                $logger->debug("returning JSON");
                 return new JsonResponse([
                     'success' => true,
                     'message' => 'Person added successfully!',
+                    'id' => $person->getId(),
                 ]);
             }
 
             // Otherwise, fallback to a normal redirect
-            $this->addFlash('success', 'Person added successfully!');
+            $this->addFlash('success', 'A new person was successfully added to the database.');
             return $this->redirectToRoute('person_list');
         }
 
         // If validation fails and it's an AJAX request, return the form HTML
-
+        $logger->debug("shit is at line ".__LINE__);
         if ($request->isXmlHttpRequest()) {
+            $logger->debug("failed validation, re-rendering form");
             return new Response(
-                $this->renderView('person/_form.html.twig', ['form' => $form->createView()]),
-
+                $this->renderView('person/_form.html.twig',
+                    ['form' => $form->createView(),
+                        'entity_type' => $entityType,
+                        'verb' => $verb,
+                    ]),
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
+        $logger->debug("initial GET, gonna render full template");
 
-        // For normal GET requests, render the full page
+        // normal GET request, render the full page
         return $this->render('person/form.html.twig', [
             'form' => $form->createView(),
+            'entity_type' => $entityType,
+            'verb' => $verb,
         ]);
     }
 
