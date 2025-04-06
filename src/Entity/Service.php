@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/** NOTE TO SELF: if (start1 < end2 && end1 > start2) then it's conflicting */
+
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
 class Service
 {
@@ -22,7 +24,7 @@ class Service
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $time = null;
 
-    #[ORM\Column(type: Types::SMALLINT, options: ["unsigned"=>true])]
+
     private ?int $fee = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ["unsigned"=>true])]
