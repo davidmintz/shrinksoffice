@@ -38,6 +38,7 @@ class Person
     #[Assert\Email(message: 'invalid email address', normalizer: 'trim')]
     private ?string $email = null;
 
+    #[Assert\PositiveOrZero(message: 'Fee must be a non-negative integer.')]
     #[ORM\Column(type: Types::SMALLINT, options: ["unsigned" => true])]
     private ?int $fee = null;
 
@@ -276,5 +277,10 @@ class Person
         $this->type = $type;
 
         return $this;
+    }
+
+    public function __toString() : string
+    {
+        return $this->getFirstname() . ' ' . $this->getLastname();
     }
 }
