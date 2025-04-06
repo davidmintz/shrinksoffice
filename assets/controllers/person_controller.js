@@ -6,16 +6,16 @@ import { Controller } from "@hotwired/stimulus";
  * @property {HTMLElement} successMessageTarget
  * @property {HTMLElement} statusTarget
  * @property  {string} entityTypeValue
- * @property  {string} verbValue
+ * @property  {string} verbiageValue
  */
 export default class extends Controller {
     static targets = ["form",  "status"];
     static values = {
         entityType: String,
-        verb: String
+        verbiage: String
     }
     connect() {
-        console.log(`we have entity type ${this.entityTypeValue} and verb ${this.verbValue}`);
+        console.log(`we have entity type ${this.entityTypeValue} and verb ${this.verbiageValue}`);
     }
     submit(event) {
         event.preventDefault();
@@ -46,8 +46,21 @@ export default class extends Controller {
                     this.formTarget.outerHTML = data;
                 } else {
                     // Success: Hide form, show success status message
+                    const css_class = 'btn btn-sm btn-outline-light mt-2';
+                    // I guess right now we don't need:
+                    //const what = this.entityTypeValue;
+                    const name = data.name;
+                    const id = data.id;
+                    const verbiage = this.verbiageValue;
+                    const basePath = '/people';
+
+                    this.statusTarget.innerHTML =
+                       `<strong>${name}</strong> has been successfully ${verbiage}
+                        <a href="${basePath}/view/${id}" class="${css_class}">view</a>
+                        <a href="${basePath}/update/${id}" class="${css_class}">edit</a>
+                        <a href="${basePath}/add" class="${css_class}">add another</a>`;
+
                     this.formTarget.classList.add("d-none");
-                    this.statusTarget.innerHTML = `This ${this.entityTypeValue} has been successfully ${this.verbValue}.` ;
                     this.statusTarget.classList.remove("d-none");
 
                 }
