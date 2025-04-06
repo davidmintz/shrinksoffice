@@ -27,7 +27,7 @@ class PersonController extends AbstractController
     public function add(Request $request, EntityManagerInterface $entityManager, LoggerInterface $logger): Response
     {
         $entityType = 'person';
-        $verb = 'created';
+        $verbiage = 'added to the database';
 
         $person = new Person();
         $form = $this->createForm(PersonType::class, $person);
@@ -43,9 +43,8 @@ class PersonController extends AbstractController
             if ($request->isXmlHttpRequest()) {
                 $logger->debug("returning JSON");
                 return new JsonResponse([
-                    'success' => true,
-                    'message' => 'Person added successfully!',
                     'id' => $person->getId(),
+                    'name' => $person->__toString(),
                 ]);
             }
 
@@ -62,7 +61,8 @@ class PersonController extends AbstractController
                 $this->renderView('person/_form.html.twig',
                     ['form' => $form->createView(),
                         'entity_type' => $entityType,
-                        'verb' => $verb,
+                        'verbiage' => $verbiage,
+
                     ]),
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
@@ -73,7 +73,7 @@ class PersonController extends AbstractController
         return $this->render('person/form.html.twig', [
             'form' => $form->createView(),
             'entity_type' => $entityType,
-            'verb' => $verb,
+            'verbiage' => $verbiage,
         ]);
     }
 
