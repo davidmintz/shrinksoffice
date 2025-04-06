@@ -35,4 +35,12 @@ return [
         'version' => '5.3.3',
         'type' => 'css',
     ],
+    // conditionally include test helpers only in dev
+    // we can comment out or remove in production
+    ...($_ENV['APP_ENV'] === 'dev' ? [
+        'test-helpers' => [
+            'path' => './assets/dev/test-helpers.js',
+            'entrypoint' => true,
+        ],
+    ] : [])
 ];

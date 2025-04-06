@@ -8,4 +8,15 @@ import './vendor/bootstrap/bootstrap.index.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/app.css';
 
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+const env = document.body.dataset.env;
+
+if (env === 'dev') {
+    // noinspection ES6UnusedImports
+    import('test-helpers')
+        .then(({ fillFakePersonForm }) => {
+            window.fillFakePersonForm = fillFakePersonForm;
+        })
+        .catch(err => console.error("Failed to load dev helpers:", err));
+}
+
+console.log('This is assets/app.js - welcome to AssetMapper! 🎉');
