@@ -1,8 +1,10 @@
+{# templates/person/_form.html.twig #}
+
 {% import 'macros/alert.html.twig' as alerts %}
 {#  later, maybe data-controller="entity-form" #}
 <div data-controller="person"
      data-person-entity-type-value="{{ entity_type }}"
-     data-person-verb-value="{{ verb }}">
+     data-person-verbiage-value="{{ verbiage }}">
 
     {{ alerts.xhr_status('status', 'alert-success') }}
 
