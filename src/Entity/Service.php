@@ -24,7 +24,7 @@ class Service
     #[ORM\Column(type: Types::TIME_MUTABLE)]
     private ?\DateTimeInterface $time = null;
 
-
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $fee = null;
 
     #[ORM\Column(type: Types::SMALLINT, options: ["unsigned"=>true])]
