@@ -41,4 +41,10 @@ export function fillFakePersonForm() {
     if (payerSelect && payerSelect.options.length > 1) {
         payerSelect.selectedIndex = 1;
     }
+
 }
+
+window.testAddPerson = () => {
+    fillFakePersonForm();
+    document.querySelector(".btn-primary").click();
+};
