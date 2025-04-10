@@ -28,48 +28,49 @@ class PersonController extends AbstractController
     {
         $entityType = 'person';
         $verbiage = 'added to the database';
-
         $person = new Person();
-        $form = $this->createForm(PersonType::class, $person);
 
+        $form = $this->createForm(PersonType::class, $person);
         $form->handleRequest($request);
 
-        // Handle successful form submission
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($person);
-            $entityManager->flush();
-            $logger->debug("we did a flush()");
-            // Return JSON if it's an AJAX request
-            if ($request->isXmlHttpRequest()) {
-                $logger->debug("returning JSON");
-                return new JsonResponse([
-                    'id' => $person->getId(),
-                    'name' => $person->__toString(),
-                ]);
-            }
+        try {
+            // Handle successful form submission
+            if ($form->isSubmitted() && $form->isValid()) {
 
-            // Otherwise, fallback to a normal redirect
-            $this->addFlash('success', 'A new person was successfully added to the database.');
-            return $this->redirectToRoute('person_list');
+                $entityManager->persist($person);
+                $entityManager->flush();
+                $logger->debug("we did a flush()");
+
+                if ($request->isXmlHttpRequest()) {
+                    $logger->debug("returning JSON");
+                    return new JsonResponse([
+                        'id' => $person->getId(),
+                        'name' => (string) $person,
+                    ]);
+                }
+
+                $this->addFlash('success', 'A new person was successfully added to the database.');
+                return $this->redirectToRoute('person_list');
+            }
+        } catch (\Exception $e) {
+            // Log if needed
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         // If validation fails and it's an AJAX request, return the form HTML
-        $logger->debug("shit is at line ".__LINE__);
         if ($request->isXmlHttpRequest()) {
             $logger->debug("failed validation, re-rendering form");
             return new Response(
-                $this->renderView('person/_form.html.twig',
-                    ['form' => $form->createView(),
-                        'entity_type' => $entityType,
-                        'verbiage' => $verbiage,
-
-                    ]),
+                $this->renderView('person/_form.html.twig', [
+                    'form' => $form->createView(),
+                    'entity_type' => $entityType,
+                    'verbiage' => $verbiage,
+                ]),
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
-        $logger->debug("initial GET, gonna render full template");
 
-        // normal GET request, render the full page
+        $logger->debug("initial GET, gonna render full template");
         return $this->render('person/form.html.twig', [
             'form' => $form->createView(),
             'entity_type' => $entityType,
