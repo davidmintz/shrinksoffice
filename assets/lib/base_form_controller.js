@@ -44,20 +44,20 @@ export default class extends Controller {
                 if (typeof data === "string") {
                     this.formTarget.outerHTML = data;
                 } else {
-                    this.handleSuccess(data);
+                    this.success(data);
                 }
             })
             .catch(error => {
                 console.error("Form submission error:", error);
-                this.handleError(error);
+                this.error(error);
             });
     }
 
-    handleSuccess(data) {
+    success(data) {
         throw new Error("Override handleSuccess() in your subclass.");
     }
 
-    handleError(error) {
+    error(error) {
         this.statusTarget.classList.remove("alert-success");
         this.statusTarget.classList.add("alert-danger");
         this.statusTarget.classList.remove("d-none");
