@@ -1,7 +1,14 @@
 {% extends 'base.html.twig' %}
 {% block title %}add new person | {{ parent() }}{% endblock %}
 {# this importmap override can be removed in production #}
-{% block importmap %}{{ importmap(['app', 'test-helpers']) }}{% endblock %}
+    {% block importmap %}
+        {% if app.environment == 'dev' %}
+            {{ importmap(['app', 'test-helpers']) }}
+        {%  else %}
+            {{ importmap(['app']) }}
+        {% endif %}
+    {% endblock %}
+
 {% block body %}
     <h2 class="text-center">add a new person</h2>
         {% include 'person/_form.html.twig' %}
