@@ -5,7 +5,10 @@ import { Controller } from "@hotwired/stimulus";
  * @property {HTMLElement} statusTarget
  */
 export default class extends Controller {
+
     static targets = ["form", "status"];
+
+    checkmarkHtml = '<div class="me-2 fs-4">✅</div>';
 
     submit(event) {
         event.preventDefault();

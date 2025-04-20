@@ -8,28 +8,24 @@ import BaseFormController from '../lib/base_form_controller.js';
  * @property  {string} verbiageValue
  */
 export default class extends BaseFormController {
-    static values = {
-        entityType: String,
-        verbiage: String
-    }
 
     success(data) {
-        const name = data.name;
-        const id = data.id;
-        const verbiage = this.verbiageValue;
-        const basePath = '/people';
-
         this.statusTarget.classList.remove("alert-danger", "d-none");
         this.statusTarget.classList.add("alert-success");
 
         this.statusTarget.innerHTML = `
-            <strong>${name}</strong> has been successfully ${verbiage}.<br>
-            <div class="py-3 text-center">
-                <a href="${basePath}/view/${id}" >view</a> |
-                <a href="${basePath}/update/${id}" >edit</a> | 
-                <a href="${basePath}/add">add another</a>
-            </div>
-        `;
+        <div class="d-flex align-items-center">
+            ${this.checkmarkHtml}
+            <div>${data.message}</div>
+        </div>
+        <div class="pt-3 text-center">
+            <a href="/people/view/${data.id}">view</a> |
+            <a href="/people/update/${data.id}">edit</a> |
+            <a href="/people/add">add another</a>
+        </div>
+    `;
+
         this.formTarget.classList.add("d-none");
     }
+
 }
