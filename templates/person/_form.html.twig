@@ -2,10 +2,8 @@
 
 {% import 'macros/alert.html.twig' as alerts %}
 {#  later, maybe data-controller="entity-form" #}
-<div data-controller="person"
-     data-person-entity-type-value="{{ entity_type }}"
-     data-person-verbiage-value="{{ verbiage }}">
-
+<div data-controller="person">
+    {# data-person-verbiage-value="{{ verbiage }} etc #}
     {{ alerts.xhr_status('status', 'alert-success') }}
 
 <form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate
