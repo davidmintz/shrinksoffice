@@ -11,11 +11,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Controller\Traits\HandlesFormCrud;
 
 use Psr\Log\LoggerInterface;
 
 class PersonController extends AbstractController
 {
+    use HandlesFormCrud;
+    public function __construct(private readonly EntityManagerInterface $entityManager
+    ) {}
+
     #[Route('/people', name: 'people_list')]
     public function index(): Response
     {
@@ -23,59 +28,13 @@ class PersonController extends AbstractController
             'controller_name' => 'PersonController',
         ]);
     }
-    #[Route('/people/add', name: 'people_add')]
-    public function add(Request $request, EntityManagerInterface $entityManager, LoggerInterface $logger): Response
+    #[Route('/people/add', name: 'person_create')]
+    public function create(Request $request): Response
     {
-        $entityType = 'person';
-        $verbiage = 'added to the database';
         $person = new Person();
-
         $form = $this->createForm(PersonType::class, $person);
-        $form->handleRequest($request);
 
-        try {
-            // Handle successful form submission
-            if ($form->isSubmitted() && $form->isValid()) {
-
-                $entityManager->persist($person);
-                $entityManager->flush();
-                $logger->debug("we did a flush()");
-
-                if ($request->isXmlHttpRequest()) {
-                    $logger->debug("returning JSON");
-                    return new JsonResponse([
-                        'id' => $person->getId(),
-                        'name' => (string) $person,
-                    ]);
-                }
-
-                $this->addFlash('success', 'A new person was successfully added to the database.');
-                return $this->redirectToRoute('person_list');
-            }
-        } catch (\Exception $e) {
-            // Log if needed
-            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-
-        // If validation fails and it's an AJAX request, return the form HTML
-        if ($request->isXmlHttpRequest()) {
-            $logger->debug("failed validation, re-rendering form");
-            return new Response(
-                $this->renderView('person/_form.html.twig', [
-                    'form' => $form->createView(),
-                    'entity_type' => $entityType,
-                    'verbiage' => $verbiage,
-                ]),
-                Response::HTTP_UNPROCESSABLE_ENTITY
-            );
-        }
-
-        $logger->debug("initial GET, gonna render full template");
-        return $this->render('person/form.html.twig', [
-            'form' => $form->createView(),
-            'entity_type' => $entityType,
-            'verbiage' => $verbiage,
-        ]);
+        return $this->handleForm($request, $person, $form, true);
     }
 
     #[Route('/person/test', name: 'person_test', methods: ['GET'])]
@@ -93,5 +52,20 @@ class PersonController extends AbstractController
         //$result = $repo->findByName($query);
         $result = $dql_query->getResult();
         return new JsonResponse(['result'=>$result]);
+    }
+
+    protected function getSuccessMessage(object $entity, bool $isNew): string
+    {
+        /** @var Person $entity */
+        $who  = '<strong>'.
+                trim("{$entity->getFirstname()} {$entity->getLastname()}")
+                .'</strong>';
+        return $isNew
+            ? sprintf('%s has been added to the database.', $who)
+            : sprintf('%s has been updated.', $who);
+    }
+    protected function getFormTemplate(): string
+    {
+        return 'person/_form.html.twig';
     }
 }
