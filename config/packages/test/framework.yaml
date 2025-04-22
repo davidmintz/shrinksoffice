@@ -1,0 +1,11 @@
+framework:
+    test: true
+    handle_all_throwables: true
+    profiler:
+        enabled: false
+    exceptions:
+        throw: true
+
+web_profiler:
+    toolbar: false
+    intercept_redirects: false
