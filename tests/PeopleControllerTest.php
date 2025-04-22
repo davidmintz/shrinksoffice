@@ -8,6 +8,26 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class PeopleControllerTest extends WebTestCase
 {
+    /** @var string[] $dummyData for stuffing Person form */
+    protected array $dummyData = [
+        'person[firstname]' => 'John',
+        'person[middlename]' => 'A.',
+        'person[lastname]' => 'Doe',
+        'person[alias]' => 'JD',
+        'person[email]' => 'john.doe@example.com',
+        'person[phone]' => '555-1234',
+        'person[address]' => '123 Main St',
+        'person[secondary_address]' => 'Apt 4B',
+        'person[city]' => 'Springfield',
+        'person[state]' => 'MA',
+        'person[postal_code]' => '01103',
+        'person[payer]' => '', // Assuming no payer is selected
+        'person[fee]' => '250',
+        'person[active]' => '1', // '1' for active
+        'person[type]' => 'patient',
+        'person[notes]' => 'blah blah yadda yadda',
+    ];
+
     public function testPeopleRouteWorks(): void
     {
         $client = static::createClient();
@@ -25,7 +45,7 @@ class PeopleControllerTest extends WebTestCase
         $this->assertSelectorExists('form#person-form',"#person-form not found");
     }
 
-    public function testAddNewPerson(): void
+    public function testAddNewPerson(): Person
     {
         $client = static::createClient();
 
@@ -33,24 +53,7 @@ class PeopleControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/people/add');
 
         // Step 2: Select the form and fill in the data
-        $form = $crawler->selectButton('Save')->form([
-            'person[firstname]' => 'John',
-            'person[middlename]' => 'A.',
-            'person[lastname]' => 'Doe',
-            'person[alias]' => 'JD',
-            'person[email]' => 'john.doe@example.com',
-            'person[phone]' => '555-1234',
-            'person[address]' => '123 Main St',
-            'person[secondary_address]' => 'Apt 4B',
-            'person[city]' => 'Springfield',
-            'person[state]' => 'MA',
-            'person[postal_code]' => '01103',
-            'person[payer]' => '', // Assuming no payer is selected
-            'person[fee]' => '250',
-            'person[active]' => '1', // '1' for active
-            'person[type]' => 'patient',
-            'person[notes]' => 'blah blah yadda yadda',
-        ]);
+        $form = $crawler->selectButton('Save')->form($this->dummyData);
 
         // Step 3: Submit the form with the 'X-Requested-With' header
         $client->submit($form, [], [
@@ -66,10 +69,10 @@ class PeopleControllerTest extends WebTestCase
         // Step 6: Decode the JSON response
         $responseData = json_decode($client->getResponse()->getContent(), true);
 
-        // Step 7: Assert that the 'success' key exists in the response
+        // Step 7: Assert that the 'id' key exists in the response
         $this->assertArrayHasKey('id', $responseData);
 
-        // Step 8: Optionally, assert that 'success' is true
+        // Step 8: Optionally, assert that 'id' is numeric
         $this->assertTrue(is_numeric($responseData['id']));
 
         // Step 9: Verify that the new Person has been added to the database
@@ -93,5 +96,23 @@ class PeopleControllerTest extends WebTestCase
         $this->assertEquals('patient', $person->getType()->value);
         $this->assertEquals('blah blah yadda yadda', $person->getNotes());
         $this->assertTrue($person->isActive());
+
+        return $person;
     }
+
+    /** @depends testAddNewPerson */
+    public function testUpdatePerson(Person $person): void
+    {
+        $this->assertInstanceof(Person::class, $person);
+        $this->assertSame('test', $_ENV['APP_ENV']);
+        $this->dummyData['person[notes]'] .= ' foo hoo doo daa hoo yeah whatever foo bar baz';
+        $client = static::createClient();
+        // Step 1: Request the form page to retrieve the CSRF token
+        $client->request('GET', '/people/update/'.$person->getId(), [], [], [
+            'HTTP_X-Requested-With' => 'XMLHttpRequest',
+        ]);
+        $this->assertResponseIsSuccessful();
+
+    }
+
 }

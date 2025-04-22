@@ -37,6 +37,13 @@ class PersonController extends AbstractController
         return $this->handleForm($request, $person, $form, true);
     }
 
+    #[Route('/boom', name: 'boom')]
+    public function boom(): Response
+    {
+        throw new \RuntimeException("Explosion test");
+    }
+
+
     #[Route('/person/test', name: 'person_test', methods: ['GET'])]
     public function test(Request $request, PersonRepository $repo) : JsonResponse
     {
@@ -54,6 +61,12 @@ class PersonController extends AbstractController
         return new JsonResponse(['result'=>$result]);
     }
 
+    #[Route('/people/update/{id}', name: 'person_update')]
+    public function update(Request $request, Person $person): Response
+    {
+        return new Response('update');
+    }
+
     protected function getSuccessMessage(object $entity, bool $isNew): string
     {
         /** @var Person $entity */
@@ -68,4 +81,5 @@ class PersonController extends AbstractController
     {
         return 'person/_form.html.twig';
     }
+
 }
