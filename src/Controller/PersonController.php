@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 class PersonController extends AbstractController
 {
     use HandlesFormCrud;
+
     public function __construct(private readonly EntityManagerInterface $entityManager
     ) {}
 
@@ -28,21 +29,15 @@ class PersonController extends AbstractController
             'controller_name' => 'PersonController',
         ]);
     }
+
     #[Route('/people/add', name: 'person_create')]
     public function create(Request $request): Response
     {
         $person = new Person();
         $form = $this->createForm(PersonType::class, $person);
 
-        return $this->handleForm($request, $person, $form, true);
+        return $this->handleForm($request, $person, $form);
     }
-
-    #[Route('/boom', name: 'boom')]
-    public function boom(): Response
-    {
-        throw new \RuntimeException("Explosion test");
-    }
-
 
     #[Route('/person/test', name: 'person_test', methods: ['GET'])]
     public function test(Request $request, PersonRepository $repo) : JsonResponse
@@ -61,19 +56,22 @@ class PersonController extends AbstractController
         return new JsonResponse(['result'=>$result]);
     }
 
+
     #[Route('/people/update/{id}', name: 'person_update')]
     public function update(Request $request, Person $person): Response
     {
-        return new Response('update');
+        $form = $this->createForm(PersonType::class, $person);
+
+        return $this->handleForm($request, $person, $form);
     }
 
-    protected function getSuccessMessage(object $entity, bool $isNew): string
+    protected function getSuccessMessage(object $entity): string
     {
         /** @var Person $entity */
         $who  = '<strong>'.
-                trim("{$entity->getFirstname()} {$entity->getLastname()}")
+                htmlspecialchars("{$entity->getFirstname()} {$entity->getLastname()}")
                 .'</strong>';
-        return $isNew
+        return $entity->getId() === null
             ? sprintf('%s has been added to the database.', $who)
             : sprintf('%s has been updated.', $who);
     }
@@ -81,5 +79,10 @@ class PersonController extends AbstractController
     {
         return 'person/_form.html.twig';
     }
+    protected function getFormViewParameters(object $entity): array
+    {
+        return ['person' => $entity];
+    }
+
 
 }
