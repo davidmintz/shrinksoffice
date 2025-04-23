@@ -1,12 +1,18 @@
 {# templates/person/_form.html.twig #}
 
 {% import 'macros/alert.html.twig' as alerts %}
+{% set action =
+    app.request.attributes.get('_route') == 'person_update'
+    ? path('person_update', { id: person.id })
+    : path('person_create')
+%}
+
 {#  later, maybe data-controller="entity-form" #}
 <div data-controller="person">
     {# data-person-verbiage-value="{{ verbiage }} etc #}
     {{ alerts.xhr_status('status', 'alert-success') }}
 
-<form class="me-3" name="person" action="/people/add" id="person-form" method="post" data-turbo="false" novalidate
+<form class="me-3" name="person" action="{{ action }}" id="person-form" method="post" data-turbo="false" novalidate
       data-action="submit->person#submit"
       data-person-target="form"
 >
