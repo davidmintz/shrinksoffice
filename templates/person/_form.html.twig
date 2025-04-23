@@ -132,9 +132,11 @@
                 <div class="form-group row">
                     <label for="notes" class="col-sm-4 col-form-label text-md-end">notes</label>
                     <div class="col-sm-8">
-                        <textarea id="notes" name="person[notes]" class="form-control" rows="5"></textarea>
+                        {{ form_widget(form.notes, { attr: { class: 'form-control', rows: 5 } }) }}
+                        {{ form_errors(form.notes) }}
                     </div>
                 </div>
+
             </div>
         </div><!-- /new shit -->
         <div class="row mb-3">
