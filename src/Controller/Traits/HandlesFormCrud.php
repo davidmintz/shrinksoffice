@@ -40,13 +40,16 @@ trait HandlesFormCrud
                     'id' => $entity->getId(),
                 ]);
             }
-
+            // else...
             return new Response(
-                $this->renderView($this->getFormTemplate(), [
-                    'form' => $form->createView(),
-                ]),
-                422
+                $this->renderView($this->getFormTemplate(), array_merge(
+                    ['form' => $form->createView()],
+                    $this->getFormViewParameters($entity)
+                )),
+                Response::HTTP_UNPROCESSABLE_ENTITY
             );
+
+
 
         }
 
