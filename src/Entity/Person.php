@@ -71,7 +71,7 @@ class Person
     private ?string $postal_code = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: 'active/inactive is required')]
+    #[Assert\NotNull(message: 'active/inactive is required')]
     private ?bool $active = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
