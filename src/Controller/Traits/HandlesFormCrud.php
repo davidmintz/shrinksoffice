@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 trait HandlesFormCrud
 {
-    protected function handleForm(Request $request, object $entity, FormInterface $form, bool $isNew): Response
+    protected function handleForm(Request $request, object $entity, FormInterface $form): Response
     {
         $form->handleRequest($request);
 
@@ -31,7 +31,8 @@ trait HandlesFormCrud
                 $this->entityManager->persist($entity);
                 $this->entityManager->flush();
 
-                $message = $this->getSuccessMessage($entity, $isNew);
+                //$isNew = $entity->getId() === null;
+                $message = $this->getSuccessMessage($entity);
 
                 return new JsonResponse([
                     'success' => true,
@@ -52,12 +53,25 @@ trait HandlesFormCrud
         // initial GET request or unsubmitted form
         $fullPageTemplate = str_replace('/_', '/', $this->getFormTemplate());
 
-        return $this->render($fullPageTemplate, [
-            'form' => $form->createView(),
-        ]);
+        return $this->render($fullPageTemplate, array_merge(
+            ['form' => $form->createView()],
+            $this->getFormViewParameters($entity)
+        ));
     }
 
     abstract protected function getFormTemplate(): string;
 
-    abstract protected function getSuccessMessage(object $entity, bool $isNew): string;
+    abstract protected function getSuccessMessage(object $entity): string;
+
+    /**
+     * Returns additional view variables to pass when rendering the form page.
+     *
+     * This allows controllers using the HandlesFormCrud trait to inject the entity
+     * with a semantic variable name (e.g., 'person', 'invoice') so that the shared
+     * Twig form partial can reference it as needed (e.g., for setting the form action).
+     *
+     * @param object $entity The entity bound to the form
+     * @return array Associative array of template variables to merge into the view context
+     */
+    abstract protected function getFormViewParameters(object $entity): array;
 }
