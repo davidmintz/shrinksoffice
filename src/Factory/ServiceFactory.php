@@ -49,9 +49,6 @@ final class ServiceFactory extends PersistentProxyObjectFactory
         'Sat 900',
         'Sat 1000',
         //'Sat 1100',
-
-
-
     ];
 
 

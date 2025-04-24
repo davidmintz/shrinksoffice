@@ -103,16 +103,35 @@ class PeopleControllerTest extends WebTestCase
     /** @depends testAddNewPerson */
     public function testUpdatePerson(Person $person): void
     {
-        $this->assertInstanceof(Person::class, $person);
-        $this->assertSame('test', $_ENV['APP_ENV']);
-        $this->dummyData['person[notes]'] .= ' foo hoo doo daa hoo yeah whatever foo bar baz';
         $client = static::createClient();
-        // Step 1: Request the form page to retrieve the CSRF token
-        $client->request('GET', '/people/update/'.$person->getId(), [], [], [
+
+        $crawler = $client->request('GET', '/people/update/' . $person->getId(), [], [], [
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
         ]);
         $this->assertResponseIsSuccessful();
 
+        $form = $crawler->selectButton('Save')->form();
+        $newNotes = 'Updated via test: foo hoo doo daa hoo yeah whatever foo bar baz';
+        $form['person[notes]'] = $newNotes;
+
+        $client->submit($form, [], [
+            'HTTP_X-Requested-With' => 'XMLHttpRequest',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertResponseHeaderSame('Content-Type', 'application/json');
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertTrue($data['success']);
+        $this->assertArrayHasKey('message', $data);
+        $this->assertArrayHasKey('id', $data);
+        $this->assertEquals($person->getId(), $data['id']);
+
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $updatedPerson = $em->getRepository(Person::class)->find($person->getId());
+
+        $this->assertNotNull($updatedPerson);
+        $this->assertSame($newNotes, $updatedPerson->getNotes());
     }
 
 }

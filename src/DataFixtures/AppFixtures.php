@@ -1,6 +1,7 @@
 <?php
 
 namespace App\DataFixtures;
+use App\Entity\Service;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PersonFactory;
@@ -13,13 +14,16 @@ use App\Factory\ServiceFactory;
 use App\Entity\PersonType;
 use Faker\Core\Number;
 use Random\RandomException;
+use Zenstruck\Foundry\Persistence\Proxy;
 use function Zenstruck\Foundry\get;
 
 class AppFixtures extends Fixture
 {
     private \DateTimeImmutable $start_date;
 
-    private Array $all_sessions;
+    /** @var Service[]|Proxy[] */
+    private array $all_sessions;
+
     public function load(ObjectManager $manager) : void
     {
 
