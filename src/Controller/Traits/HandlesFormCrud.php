@@ -30,8 +30,6 @@ trait HandlesFormCrud
             if ($form->isValid()) {
                 $this->entityManager->persist($entity);
                 $this->entityManager->flush();
-
-                //$isNew = $entity->getId() === null;
                 $message = $this->getSuccessMessage($entity);
 
                 return new JsonResponse([
@@ -48,9 +46,6 @@ trait HandlesFormCrud
                 )),
                 Response::HTTP_UNPROCESSABLE_ENTITY
             );
-
-
-
         }
 
         // initial GET request or unsubmitted form
