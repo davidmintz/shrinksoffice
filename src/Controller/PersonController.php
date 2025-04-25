@@ -30,6 +30,12 @@ class PersonController extends AbstractController
         ]);
     }
 
+    #[Route('/people/{id}', name: 'person_view', methods: ['GET'])]
+    public function view(Person $person): Response
+    {
+        return $this->render('person/view.html.twig', ['person' => $person, ]);
+    }
+
     #[Route('/people/add', name: 'person_create')]
     public function create(Request $request): Response
     {

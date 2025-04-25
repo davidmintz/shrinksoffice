@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}people | view | {{  parent() }}{% endblock %}
+
+{% block body %}
+  <p>people/{{ person.id ?? 'xxx' }}</p>
+
+  <p>We have {{ person }}</p>
+{% endblock %}
