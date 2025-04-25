@@ -1,9 +1,67 @@
+{# templates/person/view.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}people | view | {{  parent() }}{% endblock %}
 
 {% block body %}
-  <p>people/{{ person.id ?? 'xxx' }}</p>
 
-  <p>We have {{ person }}</p>
-{% endblock %}
+    <div class="container my-5">
+      <h3 class="text-center">
+        {{ person.firstname }}
+        {% if person.middlename %}
+          {{ person.middlename }}
+        {% endif %}
+        {{ person.lastname }}
+      </h3>
+      <hr>
+      <dl class="row">
+        <dt class="col-sm-3 text-md-end fw-normal">Alias / Initials</dt>
+        <dd class="col-sm-9">{{ person.alias }}</dd>
+
+        <dt class="col-sm-3 text-md-end fw-normal">Email</dt>
+        <dd class="col-sm-9">{{ person.email }}</dd>
+
+        <dt class="col-sm-3 text-md-end fw-normal">Phone</dt>
+        <dd class="col-sm-9">{{ person.phone }}</dd>
+
+        {% if person.address %}
+          <dt class="col-sm-3 text-md-end fw-normal">Address</dt>
+          <dd class="col-sm-9">
+            {{ person.address }}<br>
+            {% if person.secondaryAddress %}
+              {{ person.secondaryAddress }}<br>
+            {% endif %}
+            {{ person.city }}, {{ person.state }} {{ person.postalCode }}
+          </dd>
+        {% endif %}
+        <dt class="col-sm-3 text-md-end fw-normal">Fee</dt>
+        <dd class="col-sm-9">${{ person.fee/100}}</dd>
+        <dt class="col-sm-3 text-md-end fw-normal">Active</dt>
+        <dd class="col-sm-9">{{ person.active ? 'Yes' : 'No' }}</dd>
+
+        <dt class="col-sm-3 text-md-end fw-normal">Status</dt>
+        <dd class="col-sm-9">{{ person.type.value }}</dd>
+
+        {% set payer_html = '' %}
+        {% if person.type.value == 'payer' %}
+          {% set payer_html = '<em>not applicable</em>' %}
+        {% elseif person.payer %}
+          {% set payer_html = '<a href="' ~ path('person_view', { id: person.payer.id }) ~ '">'
+            ~ person.payer.firstname ~ ' ' ~ person.payer.lastname ~ '</a>' %}
+        {% else %}
+          {% set payer_html = '<em>self</em>' %}
+        {% endif %}
+
+        <dt class="col-sm-3 text-md-end fw-normal">Payer</dt>
+        <dd class="col-sm-9">{{ payer_html | raw }}</dd>
+
+
+        {% if person.notes %}
+          <dt class="col-sm-3 text-md-end fw-normal">Notes</dt>
+          <dd class="col-sm-9">{{ person.notes|nl2br }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  {% endblock %}
+
+
