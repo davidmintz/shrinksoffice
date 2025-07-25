@@ -1,11 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-logfile=$(mktemp)
+# change this path if you prefer another location
+logfile="$HOME/logs/cert-renewal.$(date +"%Y-%m-%d_%H-%M-%S")"
+
+# for keeping track of whether ports 80 and 443 are open
 ports_opened=false
+
 # for future use:
 # email="david@davidmintz.org"
-
 
 log() {
     echo "$@" >> "$logfile"
@@ -25,8 +28,15 @@ cleanup() {
     else
         log "Skipping port closure: ports were not opened successfully."
     fi
+
     log "Restarting Apache..."
-    systemctl start apache2 || true
+    if systemctl start apache2 >/dev/null 2>&1; then
+        log "Apache restarted successfully."
+    else
+        log "WARNING: failed to restart Apache!"
+    fi
+
+    log "Script completed."
 }
 trap cleanup EXIT
 
@@ -46,4 +56,5 @@ else
     log "certbot renew $* failed."
     exit 1
 fi
-log "certbot renew $*: completed successfully."
+
+
