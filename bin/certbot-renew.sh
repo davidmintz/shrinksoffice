@@ -15,23 +15,24 @@ log() {
 
 cleanup() {
     log "Cleaning up: closing ports and restarting Apache..."
-    sudo ufw delete allow in on ens3 to any port 80 proto tcp || true
-    sudo ufw delete allow in on ens3 to any port 443 proto tcp || true
-    sudo systemctl start apache2 || true
+    ufw delete allow in on ens3 to any port 80 proto tcp || true
+    ufw delete allow in on ens3 to any port 443 proto tcp || true
+    systemctl start apache2 || true
 }
 trap cleanup EXIT
 # stop the web server
-sudo systemctl stop apache2
+systemctl stop apache2
 
 # open ports for cert renewal
-sudo ufw allow in on ens3 to any port 80 proto tcp
-sudo ufw allow in on ens3 to any port 443 proto tcp
+ufw allow in on ens3 to any port 80 proto tcp
+ufw allow in on ens3 to any port 443 proto tcp
 
 log "Running certbot renew..."
-if sudo certbot renew --standalone --dry-run 2>&1 | tee -a "$logfile"; then
-    log "Certbot renewal completed successfully."
+if certbot renew --standalone "$@" 2>&1 | tee -a "$logfile"; then
+    log "certbot renew $*: completed successfully."
+
 else
-    log "Certbot renewal failed."
+    log "certbot renew $* failed."
     exit 1
 fi
 
