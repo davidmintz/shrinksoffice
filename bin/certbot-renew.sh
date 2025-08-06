@@ -1,6 +1,45 @@
 #!/bin/bash
 set -euo pipefail
 
+if [[ "$*" == *"--help"* ]]; then
+    cat <<EOF
+certbot-renew.sh - A certbot wrapper for VPN environments that temporarily opens firewall ports and stops Apache.
+
+Usage: certbot-renew.sh [--dry-run] [certbot options...]
+
+Options:
+  --dry-run            Simulate renewal without making changes.
+                       This option is passed through to certbot, but the script
+                       also detects it and logs that a dry run is being performed.
+                       Note: The script will still check whether certificates are
+                       due for renewal. To override that and force a dry run
+                       regardless of expiration status, set SKIP_EXPIRY_CHECK=true.
+
+Environment variables:
+  SKIP_EXPIRY_CHECK    If set to 'true', skips the certificate expiration check
+                       and forces a renewal attempt (or dry run) even if certs
+                       are not yet due. Useful for testing.
+
+Other arguments:
+  Any other arguments are passed directly to certbot.
+  For available certbot options, see:
+  https://certbot.eff.org/docs/using.html#certbot-command-line-options
+
+Examples:
+  # Simulate renewal even if certs aren't due:
+  SKIP_EXPIRY_CHECK=true ./certbot-renew.sh --dry-run
+
+  # Run actual renewal (will exit early if certs have more than 30 days left):
+  ./certbot-renew.sh
+
+Typical crontab entry:
+  MAILTO=admin@example.com
+  30 4 * * 0 /path/to/certbot-renew.sh
+
+EOF
+    exit 0
+fi
+
 logdir="$HOME/logs"
 mkdir -p "$logdir"
 logfile="$logdir/cert-renewal.$(date +"%Y-%m-%d_%H-%M-%S")"
