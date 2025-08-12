@@ -33,19 +33,13 @@ Examples:
   ./certbot-renew.sh
 
 Typical crontab entry:
-  MAILTO=admin@example.com
-  30 4 * * 0 /path/to/certbot-renew.sh
+  MAILTO=you@example.com
+  30 4 * * sun /usr/local/bin/certbot-renew.sh 2>&1 | awk '{ print strftime("[%Y-%m-%d %H:%M:%S] "), $0 }' | tee /root/logs/cert-renewal.$(date "+%F_%H-%M-%S")
+
 
 EOF
     exit 0
 fi
-
-logdir="$HOME/logs"
-mkdir -p "$logdir"
-logfile="$logdir/cert-renewal.$(date +"%Y-%m-%d_%H-%M-%S")"
-
-# Duplicate all output to logfile and stdout (cron will email stdout/stderr to MAILTO)
-exec > >(awk '{ print strftime("[%Y-%m-%d %H:%M:%S] "), $0 }' | tee -a "$logfile") 2>&1
 
 if [[ "$*" == *"--dry-run"* ]]; then
     echo "Running in dry-run mode."
